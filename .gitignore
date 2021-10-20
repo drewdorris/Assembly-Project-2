@@ -1,0 +1,6 @@
+.vscode/
+*.exe
+*.o
+*.obj
+proj2-release
+proj2-debug
