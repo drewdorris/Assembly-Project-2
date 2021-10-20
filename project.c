@@ -27,9 +27,6 @@ int main(int argc, char *argv[]) {
 			i = i + 1;
 			n = n + 1;
 		}
-        /* buff has one line of the file, do with it what you will... */
-
-        /*printf ("%s\n", buff);  ...such as show it on the screen */
 		i = i - 1; // remove null terminator at end
     }
 	fclose(file);  /* close the file */ 
