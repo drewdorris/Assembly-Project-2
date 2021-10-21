@@ -8,10 +8,10 @@ clean:
 .PHONY: clean
 
 release: project.c
-	gcc -o proj2-release project.c
+	gcc -o proj2-release project.c parser.c token.c
 
 debug: project.c
-	gcc -g -o proj2-debug project.c
+	gcc -g -o proj2-debug project.c parser.c token.c
 
 run-rel: release
 	./proj2-release
@@ -29,10 +29,10 @@ cleanw:
 .PHONY: cleanw
 
 releasew: project.c
-	cl /Fe:proj2-release.exe project.c
+	cl /Fe:proj2-release.exe project.c parser.c token.c
 
 debugw: project.c
-	cl /DEBUG /Fe:proj2-debug.exe project.c
+	cl /DEBUG /Fe:proj2-debug.exe project.c parser.c token.c
 
 run-relw: releasew
 	.\proj2-release.exe

@@ -11,4 +11,4 @@ struct parser {
 	int stack_ptr;
 };
 
-#endif PARSER_H
+#endif
