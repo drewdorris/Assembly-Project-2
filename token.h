@@ -29,6 +29,7 @@ struct token {
 #define TYPE_SUB 11 // -
 #define TYPE_AND 12 // &
 #define TYPE_OR 13 // |
+#define TYPE_NEG 26 // ~
 #define TYPE_ASSIGN 14 //
 #define TYPE_EQUAL 15 //=. I haven't decided whether this should be a production of two tokens, or directly handled as one.
 //Keywords and identifiers that we can cheat as keywords
