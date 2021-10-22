@@ -19,4 +19,6 @@ struct token * parserLookahead(struct parser * self);
 
 void parserExpectOrError(struct parser * self, int type);
 
+void parserError(void);
+
 #endif
