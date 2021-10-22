@@ -39,6 +39,7 @@ void parserError(void) {
 
 //rules
 
+//Top rule for a C program. Includes global declarations and functions.
 void program(struct parser * self) {
 	parserNext(self);
 	while (parserLookaheadIs(self,TYPE_KW_INT) || parserLookaheadIs(self,TYPE_KW_SHORT) || parserLookaheadIs(self,TYPE_KW_VOID)) {
@@ -47,20 +48,42 @@ void program(struct parser * self) {
 	}
 }
 
+//Declarations, such as variables and functions.
 void declaration(struct parser * self) {
 	//what is this vartype? skip for now
 	fprintf(stderr,"got a vartype %d\n",parserLookahead(self)->type);
 	parserNext(self);
 	if (parserLookaheadIs(self,TYPE_KW_MAIN)) {
+		parserNext(self);
 		//main function
 		parserExpectOrError(self,TYPE_LEFT_PAREN);
 		parserExpectOrError(self,TYPE_RIGHT_PAREN);
 		parserExpectOrError(self,TYPE_LEFT_BRACE);
 		//function internals
-		parserExpectOrError(self,TYPE_RIGHT_BRACE);
+		block(self);
 	} else if (parserLookaheadIs(self,TYPE_IDENTIFIER)) {
 		//identifier, could be a variable, could be a function
 		//grab identifier here
-		parserNext();
+		parserNext(self);
+		//semicolon, assignment, or function? next token ;, =, or ( determines it
+	}
+}
+
+//Blocks introduced { }. Contains a sequence of semicolon-seperated statements which can include declarations
+void block(struct parser * self) {
+	while (!parserLookaheadIs(self,TYPE_RIGHT_BRACE)) {
+		if (parserLookaheadIs(self,TYPE_KW_INT) || parserLookaheadIs(self,TYPE_KW_SHORT)) {
+		//start of declaration
+		declaration(self);
+		} else if (parserLookaheadIs(self,TYPE_IDENTIFIER)) {
+			//Usage of a variable. Probably an assignment statement, though it could also be a function call
+		} else if (parserLookaheadIs(self,TYPE_KW_IF)) {
+			//If statement-not handling now
+			parserError();
+		} else if (parserLookaheadIs(self,TYPE_KW_WHILE)) {
+			//While statement- not doing that now
+			parserError();
+		}
+		parserNext(self);
 	}
 }

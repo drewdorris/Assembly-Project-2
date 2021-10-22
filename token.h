@@ -42,6 +42,7 @@ struct token {
 #define TYPE_KW_MAIN 23 //"main" pseudokeyword. It's technically an identifier, but for our purposes it can be one.
 #define TYPE_KW_SCANF 24 //"scanf" pseudokeyword. Inputs an integer
 #define TYPE_KW_PRINTF 25 //"printf" pseudokeyword. Outputs either a string or an integer
+#define TYPE_KW_WHILE 26 // while loops
 
 void tokenInit(struct token * self);
 
