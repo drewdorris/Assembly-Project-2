@@ -93,7 +93,6 @@ void block(struct parser * self) {
 			//While statement- not doing that now
 			parserError();
 		}
-		parserNext(self);
 	}
 }
 

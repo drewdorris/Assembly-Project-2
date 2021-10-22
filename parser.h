@@ -3,7 +3,6 @@
 #include "token.h"
 
 struct parser {
-	//Input format not specified right now. Probably an array of tokens.
 	struct token * tokenArray;
 	int tokenArrayLength;
 	int currentToken;
@@ -20,5 +19,15 @@ struct token * parserLookahead(struct parser * self);
 void parserExpectOrError(struct parser * self, int type);
 
 void parserError(void);
+
+//Rules
+
+void program(struct parser * self);
+
+void declaration(struct parser * self);
+
+void block(struct parser * self);
+
+void printfParse(struct parser * self);
 
 #endif
