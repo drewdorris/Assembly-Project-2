@@ -73,10 +73,19 @@ void declaration(struct parser * self) {
 void block(struct parser * self) {
 	while (!parserLookaheadIs(self,TYPE_RIGHT_BRACE)) {
 		if (parserLookaheadIs(self,TYPE_KW_INT) || parserLookaheadIs(self,TYPE_KW_SHORT)) {
-		//start of declaration
-		declaration(self);
+			//start of declaration
+			declaration(self);
 		} else if (parserLookaheadIs(self,TYPE_IDENTIFIER)) {
 			//Usage of a variable. Probably an assignment statement, though it could also be a function call
+		} else if (parserLookaheadIs(self,TYPE_KW_PRINTF)) {
+			//printf here, definitely a print call
+			parserNext(self);
+			printfParse(self);
+		} else if (parserLookaheadIs(self,TYPE_KW_RETURN)) {
+			//Return statement
+			parserNext(self);
+			parserExpectOrError(self,TYPE_NUMBER);
+			parserExpectOrError(self,TYPE_SEMI);
 		} else if (parserLookaheadIs(self,TYPE_KW_IF)) {
 			//If statement-not handling now
 			parserError();
@@ -85,5 +94,32 @@ void block(struct parser * self) {
 			parserError();
 		}
 		parserNext(self);
+	}
+}
+
+//Internals of a printf call.
+//Parser is continuing from here
+//      V
+//printf("Hello World!\n");
+void printfParse(struct parser * self) {
+	parserExpectOrError(self,TYPE_LEFT_PAREN);
+	if (!parserLookaheadIs(self,TYPE_STRING)) {
+		parserError(); //string must be here
+	}
+	struct token * formatString = parserLookahead(self);
+	parserNext(self);
+	if (parserLookaheadIs(self,TYPE_RIGHT_PAREN)) {
+		//String output
+		parserNext(self);
+		parserExpectOrError(self,TYPE_SEMI);
+	} else if (parserLookaheadIs(self,TYPE_COMMA)) {
+		//Probably number output
+		//printf("%d",x);
+		parserNext(self);
+		//Expression here
+		parserExpectOrError(self,TYPE_RIGHT_PAREN);
+		parserExpectOrError(self,TYPE_SEMI);
+	} else {
+		parserError();
 	}
 }
