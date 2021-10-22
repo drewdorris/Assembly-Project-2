@@ -43,6 +43,6 @@ struct token {
 #define TYPE_KW_SCANF 24 //"scanf" pseudokeyword. Inputs an integer
 #define TYPE_KW_PRINTF 25 //"printf" pseudokeyword. Outputs either a string or an integer
 
-void token_init(struct token * self);
+void tokenInit(struct token * self);
 
 #endif
