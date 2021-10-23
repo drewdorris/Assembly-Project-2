@@ -39,26 +39,6 @@ struct program {
 	struct declaration * declarations;
 };
 
-//A declaration, which could be a variable or a function, especially the main function
-#define DECL_MAIN 1 // Declaration of int main()
-#define DECL_VARIABLE 2 // Declaration of a variable
-#define DECL_FUNCTION 3 // Declaration of a function
-
-struct declaration {
-	int declarationType;
-	char * identifier; //name of the identifier/var/func being declared.
-
-	//Variable
-	int variableType; // may be TYPE_KW_SHORT or TYPE_KW_INT
-	struct expression * init; // if present otherwise null e.g. "int x;" is a null pointer, "int x = 5;" has pointer to expression
-
-	//Functions (MAIN ignores return type, identifier, and arguments. Only functionBlock is used.)
-	int returnType; // may be TYPE_KW_SHORT or TYPE_KW_INT or TYPE_KW_VOID
-	int nArgTypes; // number of arguments
-	int * argTypes; // argument types, only TYPE_KW_SHORT or TYPE_KW_INT
-	struct block functionBlock; // pointer to code block
-};
-
 //A set of {} and the declarations/statements within.
 struct block {
 	int nElements;
@@ -71,27 +51,6 @@ struct block {
 struct blockElement {
 	int type;
 	void * element; //must be casted to (struct statement *) or (struct declaration *) depending on type
-};
-
-//A statement in C, which is that stuff before the ;
-#define STMT_BLOCK 0 // A block is a grouping of statements/decls and is itself a statement as a whole
-#define STMT_VAR_ASSIGNMENT 1
-#define STMT_FUNCTION_CALL 2
-#define STMT_PRINTF_CALL 3
-#define STMT_SCANF_CALL 4
-#define STMT_RETURN 5
-#define STMT_IF 6 // Doesn't end with ; but is functionally the same
-#define STMT_WHILE 7 // Doesn't end with ; but is functionally the same
-struct statement {
-	int statementType;
-	//Block statements
-	struct block * block;
-	//Types with identifiers (var assign, function call, scanf target)
-	char * identifer;
-	//Types with right-hand sides
-	struct expression rhs; // Value of the variable assignment, return number, printf
-	//Function calls
-	//ignore for now- stretch goal
 };
 
 //An expression of variables, constants, and operators
@@ -114,6 +73,47 @@ struct expression {
 	int operator;
 	int rightType;
 	void * right; // must be casted to (struct expression *), (int *), or (char *)
+};
+
+//A declaration, which could be a variable or a function, especially the main function
+#define DECL_MAIN 1 // Declaration of int main()
+#define DECL_VARIABLE 2 // Declaration of a variable
+#define DECL_FUNCTION 3 // Declaration of a function
+
+struct declaration {
+	int declarationType;
+	char * identifier; //name of the identifier/var/func being declared.
+
+	//Variable
+	int variableType; // may be TYPE_KW_SHORT or TYPE_KW_INT
+	struct expression * init; // if present otherwise null e.g. "int x;" is a null pointer, "int x = 5;" has pointer to expression
+
+	//Functions (MAIN ignores return type, identifier, and arguments. Only functionBlock is used.)
+	int returnType; // may be TYPE_KW_SHORT or TYPE_KW_INT or TYPE_KW_VOID
+	int nArgTypes; // number of arguments
+	int * argTypes; // argument types, only TYPE_KW_SHORT or TYPE_KW_INT
+	struct block functionBlock; // pointer to code block
+};
+
+//A statement in C, which is that stuff before the ;
+#define STMT_BLOCK 0 // A block is a grouping of statements/decls and is itself a statement as a whole
+#define STMT_VAR_ASSIGNMENT 1
+#define STMT_FUNCTION_CALL 2
+#define STMT_PRINTF_CALL 3
+#define STMT_SCANF_CALL 4
+#define STMT_RETURN 5
+#define STMT_IF 6 // Doesn't end with ; but is functionally the same
+#define STMT_WHILE 7 // Doesn't end with ; but is functionally the same
+struct statement {
+	int statementType;
+	//Block statements
+	struct block * block;
+	//Types with identifiers (var assign, function call, scanf target)
+	char * identifer;
+	//Types with right-hand sides
+	struct expression rhs; // Value of the variable assignment, return number, printf
+	//Function calls
+	//ignore for now- stretch goal
 };
 
 #endif

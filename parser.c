@@ -123,7 +123,7 @@ struct block block(struct parser * self) {
 //Parser is continuing from here
 //      V
 //printf("Hello World!\n");
-struct statement * printfParse(struct parser * self) {
+struct statement printfParse(struct parser * self) {
 	parserExpectOrError(self,TYPE_LEFT_PAREN);
 	if (!parserLookaheadIs(self,TYPE_STRING)) {
 		parserError(); //string must be here
