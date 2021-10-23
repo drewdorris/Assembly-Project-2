@@ -1,5 +1,6 @@
 #ifndef PARSER_H
 #define PARSER_H
+#include <stdlib.h>
 #include "token.h"
 
 struct parser {
@@ -22,13 +23,13 @@ void parserError(void);
 
 //Rules
 
-void program(struct parser * self);
+struct program program(struct parser * self);
 
-void declaration(struct parser * self);
+struct declaration declaration(struct parser * self);
 
-void block(struct parser * self);
+struct block block(struct parser * self);
 
-void printfParse(struct parser * self);
+struct statement printfParse(struct parser * self);
 
 //Nodes
 
@@ -42,6 +43,7 @@ struct program {
 #define DECL_MAIN 1 // Declaration of int main()
 #define DECL_VARIABLE 2 // Declaration of a variable
 #define DECL_FUNCTION 3 // Declaration of a function
+
 struct declaration {
 	int declarationType;
 	char * identifier; //name of the identifier/var/func being declared.
@@ -54,7 +56,7 @@ struct declaration {
 	int returnType; // may be TYPE_KW_SHORT or TYPE_KW_INT or TYPE_KW_VOID
 	int nArgTypes; // number of arguments
 	int * argTypes; // argument types, only TYPE_KW_SHORT or TYPE_KW_INT
-	struct block * functionBlock; // pointer to code block
+	struct block functionBlock; // pointer to code block
 };
 
 //A set of {} and the declarations/statements within.
@@ -83,11 +85,11 @@ struct blockElement {
 struct statement {
 	int statementType;
 	//Block statements
-	struct block * blockElement;
+	struct block * block;
 	//Types with identifiers (var assign, function call, scanf target)
 	char * identifer;
 	//Types with right-hand sides
-	struct expression * rhs; // Value of the variable assignment, return number, printf
+	struct expression rhs; // Value of the variable assignment, return number, printf
 	//Function calls
 	//ignore for now- stretch goal
 };

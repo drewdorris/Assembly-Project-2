@@ -40,16 +40,28 @@ void parserError(void) {
 //rules
 
 //Top rule for a C program. Includes global declarations and functions.
-void program(struct parser * self) {
+struct program program(struct parser * self) {
+	struct declaration * decls = malloc(sizeof(struct declaration) * 256);
+	int nDecls = 0;
 	parserNext(self);
 	while (parserLookaheadIs(self,TYPE_KW_INT) || parserLookaheadIs(self,TYPE_KW_SHORT) || parserLookaheadIs(self,TYPE_KW_VOID)) {
 		//start of declaration
-		declaration(self);
+		struct declaration decl = declaration(self);
+		//add declaration to list
+		if (nDecls == 256) {
+			parserError();
+		}
+		decls[nDecls] = decl;
+		nDecls++;
 	}
+	struct program prgm;
+	prgm.nDeclarations = nDecls;
+	prgm.declarations = decls;
+	return prgm;
 }
 
 //Declarations, such as variables and functions.
-void declaration(struct parser * self) {
+struct declaration declaration(struct parser * self) {
 	//what is this vartype? skip for now
 	fprintf(stderr,"got a vartype %d\n",parserLookahead(self)->type);
 	parserNext(self);
@@ -60,7 +72,11 @@ void declaration(struct parser * self) {
 		parserExpectOrError(self,TYPE_RIGHT_PAREN);
 		parserExpectOrError(self,TYPE_LEFT_BRACE);
 		//function internals
-		block(self);
+		struct block blockData = block(self);
+		struct declaration decl;
+		decl.declarationType = DECL_MAIN;
+		decl.functionBlock = blockData;
+		return decl;
 	} else if (parserLookaheadIs(self,TYPE_IDENTIFIER)) {
 		//identifier, could be a variable, could be a function
 		//grab identifier here
@@ -70,11 +86,14 @@ void declaration(struct parser * self) {
 }
 
 //Blocks introduced { }. Contains a sequence of semicolon-seperated statements which can include declarations
-void block(struct parser * self) {
+struct block block(struct parser * self) {
+	struct blockElement * blockElements = malloc(sizeof(struct blockElement) * 256);
+	int nBlockElements = 0;
+
 	while (!parserLookaheadIs(self,TYPE_RIGHT_BRACE)) {
 		if (parserLookaheadIs(self,TYPE_KW_INT) || parserLookaheadIs(self,TYPE_KW_SHORT)) {
 			//start of declaration
-			declaration(self);
+			struct declaration decl = declaration(self);
 		} else if (parserLookaheadIs(self,TYPE_IDENTIFIER)) {
 			//Usage of a variable. Probably an assignment statement, though it could also be a function call
 		} else if (parserLookaheadIs(self,TYPE_KW_PRINTF)) {
@@ -94,13 +113,17 @@ void block(struct parser * self) {
 			parserError();
 		}
 	}
+	struct block block;
+	block.elements = blockElements;
+	block.nElements = nBlockElements;
+	return block;
 }
 
 //Internals of a printf call.
 //Parser is continuing from here
 //      V
 //printf("Hello World!\n");
-void printfParse(struct parser * self) {
+struct statement * printfParse(struct parser * self) {
 	parserExpectOrError(self,TYPE_LEFT_PAREN);
 	if (!parserLookaheadIs(self,TYPE_STRING)) {
 		parserError(); //string must be here
