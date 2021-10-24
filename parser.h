@@ -9,7 +9,11 @@ struct parser {
 	int currentToken;
 };
 
+void parserDebug(void);
+
 void parserInit(struct parser * self);
+
+int parserHasNext(struct parser * self);
 
 int parserNext(struct parser * self);
 

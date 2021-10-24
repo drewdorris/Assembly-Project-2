@@ -3,8 +3,45 @@
 #include "parser.h"
 #include "token.h"
 
+void parserDebug(void) {
+	/*
+	[ int ][ main ][ ( ][ ) ][ { ]
+		[ printf ][ ( ][ "Hello World!\n" ][ ) ][ ; ]
+		[ return ][ 0 ][ ; ]
+	[ } ]
+	*/
+	struct token tokens[16];
+	tokens[0].type = TYPE_KW_INT;
+	tokens[1].type = TYPE_KW_MAIN;
+	tokens[2].type = TYPE_LEFT_PAREN;
+	tokens[3].type = TYPE_RIGHT_PAREN;
+	tokens[4].type = TYPE_LEFT_BRACE;
+	tokens[5].type = TYPE_KW_PRINTF;
+	tokens[6].type = TYPE_LEFT_PAREN;
+	tokens[7].type = TYPE_STRING;
+	tokens[7].payload = "Hello World!\n";
+	tokens[8].type = TYPE_RIGHT_PAREN;
+	tokens[9].type = TYPE_SEMI;
+	tokens[10].type = TYPE_KW_RETURN;
+	tokens[11].type = TYPE_NUMBER;
+	int ret = 0;
+	tokens[11].payload = &ret;
+	tokens[12].type = TYPE_SEMI;
+	tokens[13].type = TYPE_RIGHT_BRACE;
+
+	struct parser testParser;
+	testParser.tokenArray = tokens;
+	testParser.tokenArrayLength = 14;
+	parserInit(&testParser);
+	struct program prgm = program(&testParser);
+}
+
 void parserInit(struct parser * self) {
 	self->currentToken = 0;
+}
+
+int parserHasNext(struct parser * self) {
+	return self->currentToken != self->tokenArrayLength;
 }
 
 int parserNext(struct parser * self) {
@@ -43,7 +80,6 @@ void parserError(void) {
 struct program program(struct parser * self) {
 	struct declaration * decls = malloc(sizeof(struct declaration) * 256);
 	int nDecls = 0;
-	parserNext(self);
 	while (parserLookaheadIs(self,TYPE_KW_INT) || parserLookaheadIs(self,TYPE_KW_SHORT) || parserLookaheadIs(self,TYPE_KW_VOID)) {
 		//start of declaration
 		struct declaration decl = declaration(self);
@@ -53,6 +89,7 @@ struct program program(struct parser * self) {
 		}
 		decls[nDecls] = decl;
 		nDecls++;
+		if (!parserHasNext(self)) break;
 	}
 	struct program prgm;
 	prgm.nDeclarations = nDecls;

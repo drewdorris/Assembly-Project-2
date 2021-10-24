@@ -1,10 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "parser.h"
 
 #define MAX_FILE_LENGTH 2000 // maximum amnt of characters in the file
 
 int main(int argc, char *argv[]) {
+	if (0) {
+		parserDebug();
+		return 0;
+	}
+
 	// stores all input
 	char all[MAX_FILE_LENGTH];
 	
