@@ -120,6 +120,9 @@ struct block block(struct parser * self) {
 			struct statement stmt;
 			stmt.statementType = STMT_RETURN;
 			stmt.rhs.leftType = EXPR_VAL_NUMBER;
+			stmt.rhs.operator = EXPR_OP_NOP;
+			stmt.rhs.rightType = EXPR_VAL_UNARY;
+			
 			int * code = malloc(sizeof(int));
 			*code = 0;
 			stmt.rhs.left = code;
@@ -157,10 +160,19 @@ struct statement printfParse(struct parser * self) {
 	if (!parserLookaheadIs(self,TYPE_STRING)) {
 		parserError(); //string must be here
 	}
-	struct token * formatString = parserLookahead(self);
+
+	struct statement printfStmt;
+	printfStmt.statementType = STMT_PRINTF_CALL;
+
+	struct token * formatStringToken = parserLookahead(self);
 	parserNext(self);
 	if (parserLookaheadIs(self,TYPE_RIGHT_PAREN)) {
 		//String output
+		char * formatString = ((char *)(formatStringToken->payload));
+		printfStmt.rhs.left = formatString;
+		printfStmt.rhs.leftType = EXPR_VAL_STRING;
+		printfStmt.rhs.operator = EXPR_OP_NOP;
+		printfStmt.rhs.rightType = EXPR_VAL_UNARY;
 		parserNext(self);
 		parserExpectOrError(self,TYPE_SEMI);
 	} else if (parserLookaheadIs(self,TYPE_COMMA)) {
