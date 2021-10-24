@@ -99,12 +99,41 @@ struct block block(struct parser * self) {
 		} else if (parserLookaheadIs(self,TYPE_KW_PRINTF)) {
 			//printf here, definitely a print call
 			parserNext(self);
-			printfParse(self);
+			struct statement stmt = printfParse(self);
+			
+			struct blockElement elem;
+			elem.type = BLCK_STATEMENT;
+			elem.element = malloc(sizeof(struct statement));
+			*((struct statement *)(elem.element)) = stmt;
+			//add data to list
+			if (nBlockElements == 256) {
+				parserError();
+			}
+			blockElements[nBlockElements] = elem;
+			nBlockElements++;
 		} else if (parserLookaheadIs(self,TYPE_KW_RETURN)) {
 			//Return statement
 			parserNext(self);
 			parserExpectOrError(self,TYPE_NUMBER);
 			parserExpectOrError(self,TYPE_SEMI);
+
+			struct statement stmt;
+			stmt.statementType = STMT_RETURN;
+			stmt.rhs.leftType = EXPR_VAL_NUMBER;
+			int * code = malloc(sizeof(int));
+			*code = 0;
+			stmt.rhs.left = code;
+
+			struct blockElement elem;
+			elem.type = BLCK_STATEMENT;
+			elem.element = elem.element = malloc(sizeof(struct statement));
+			*((struct statement *)(elem.element)) = stmt;
+			//add data to list
+			if (nBlockElements == 256) {
+				parserError();
+			}
+			blockElements[nBlockElements] = elem;
+			nBlockElements++;
 		} else if (parserLookaheadIs(self,TYPE_KW_IF)) {
 			//If statement-not handling now
 			parserError();
