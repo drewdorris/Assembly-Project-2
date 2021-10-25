@@ -24,7 +24,7 @@ void parserDebug(void) {
 	tokens[9].type = TYPE_SEMI;
 	tokens[10].type = TYPE_KW_RETURN;
 	tokens[11].type = TYPE_NUMBER;
-	int ret = 0;
+	int ret = 42;
 	tokens[11].payload = &ret;
 	tokens[12].type = TYPE_SEMI;
 	tokens[13].type = TYPE_RIGHT_BRACE;
@@ -34,6 +34,7 @@ void parserDebug(void) {
 	testParser.tokenArrayLength = 14;
 	parserInit(&testParser);
 	struct program prgm = program(&testParser);
+	printProgramTree(&prgm);
 }
 
 void parserInit(struct parser * self) {
@@ -222,4 +223,126 @@ struct statement printfParse(struct parser * self) {
 	} else {
 		parserError();
 	}
+	return printfStmt;
+}
+
+void printIndent(int indent) {
+	while (indent > 0) {
+		printf("  ");
+		indent--;
+	}
+}
+
+void printProgramTree(struct program * root) {
+	printf("C Program (%d declarations)\n",root->nDeclarations);
+	for (int i = 0; i < root->nDeclarations; i++) {
+		printDeclaration(&root->declarations[i],1);
+	}
+}
+
+void printDeclaration(struct declaration * decl, int indent) {
+	printIndent(indent);
+	printf("Declaration ");
+	switch (decl->declarationType) {
+		case DECL_MAIN:
+			printf("MAIN\n");
+			printBlock(&decl->functionBlock,indent+1);
+			break;
+	}
+}
+
+void printBlock(struct block * block, int indent) {
+	printIndent(indent);
+	printf("Block (%d elements)\n",block->nElements);
+	for (int i = 0; i < block->nElements; i++) {
+		struct blockElement * elem = &block->elements[i];
+		switch (elem->type) {
+			case BLCK_DECLARATION:
+				printDeclaration(elem->element,indent+1);
+				break;
+			case BLCK_STATEMENT:
+				printStatement(elem->element,indent+1);
+				break;
+		}
+		printf("\n");
+	}
+}
+
+void printStatement(struct statement * stmt, int indent) {
+	printIndent(indent);
+	printf("Statement ");
+	switch (stmt->statementType) {
+		case STMT_RETURN:
+			printf("RETURN ");
+			printExpression(&stmt->rhs);
+			break;
+		case STMT_PRINTF_CALL:
+			printf("PRINTF ");
+			printExpression(&stmt->rhs);
+			break;
+		default:
+			printf("unknown");
+			break;
+	}
+}
+
+void printExpression(struct expression * expr) {
+	printf("(");
+	switch (expr->leftType) {
+		case EXPR_VAL_NUMBER:
+			{
+				int * val = (int *) expr->left;
+				printf("%d",*val);
+			}
+			break;
+		case EXPR_VAL_STRING:
+			printf("\"%s\"",expr->left);
+			break;
+		case EXPR_VAL_EXPRESSION:
+			printExpression(expr->left);
+			break;
+		default:
+			printf(" <unknown>");
+	}
+	switch (expr->operator) {
+		case EXPR_OP_ADD:
+			printf(" ADD");
+			break;
+		case EXPR_OP_SUB:
+			printf(" SUB");
+			break;
+		case EXPR_OP_NEG:
+			printf(" NEG");
+			break;
+		case EXPR_OP_AND:
+			printf(" AND");
+			break;
+		case EXPR_OP_OR:
+			printf(" OR");
+			break;
+		case EXPR_OP_NOP:
+			printf(" <not used>");
+			break;
+		default:
+			printf(" <unknown>");
+			break;
+	}
+	switch (expr->rightType) {
+		case EXPR_VAL_NUMBER:
+			printf("%d",expr->right);
+			break;
+		case EXPR_VAL_STRING:
+			printf("\"%s\"",expr->right);
+			break;
+		case EXPR_VAL_EXPRESSION:
+			printExpression(expr->right);
+			break;
+		case EXPR_VAL_UNARY:
+			printf(" <not used>");
+			break;
+		default:
+			printf(" <unknown>");
+			break;
+	}
+	printf(")");
 }

@@ -6,7 +6,7 @@
 #define MAX_FILE_LENGTH 2000 // maximum amnt of characters in the file
 
 int main(int argc, char *argv[]) {
-	if (0) {
+	if (1) {
 		parserDebug();
 		return 0;
 	}

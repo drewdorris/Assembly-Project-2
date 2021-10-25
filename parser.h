@@ -113,11 +113,23 @@ struct statement {
 	//Block statements
 	struct block * block;
 	//Types with identifiers (var assign, function call, scanf target)
-	char * identifer;
+	char * identifier;
 	//Types with right-hand sides
 	struct expression rhs; // Value of the variable assignment, return number, printf
 	//Function calls
 	//ignore for now- stretch goal
 };
+
+void printIndent(int indent);
+
+void printProgramTree(struct program * root);
+
+void printDeclaration(struct declaration * decl, int indent);
+
+void printBlock(struct block * block, int indent);
+
+void printStatement(struct statement * stmt, int indent);
+
+void printExpression(struct expression * expr);
 
 #endif
