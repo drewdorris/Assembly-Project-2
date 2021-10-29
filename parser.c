@@ -123,6 +123,29 @@ struct declaration declaration(struct parser * self) {
 		switch (parserLookahead(self)->type) {
 			case TYPE_SEMI:
 				//int x;
+				//I'll make an implementation-defined decision to zero-initialise anyway despite null being allowed to indicate no initialiser
+				struct expression * zeroinitExpr = malloc(sizeof(struct expression));
+				switch (varType) {
+					case TYPE_KW_INT:
+					case TYPE_KW_SHORT:
+						int * left = malloc(sizeof(int));
+						zeroinitExpr->left = left;
+						*left = 0;
+						zeroinitExpr->leftType = EXPR_VAL_NUMBER;
+						zeroinitExpr->operator = EXPR_OP_NOP;
+						zeroinitExpr->right = NULL;
+						zeroinitExpr->rightType = EXPR_VAL_UNARY;
+						//It's int x; make the decl struct
+						struct declaration decl;
+						decl.identifier = identifier;
+						decl.declarationType = DECL_VARIABLE;
+						decl.variableType = varType;
+						decl.init = zeroinitExpr;
+						return decl;
+					default:
+						//void x; makes no sense
+						parserError();
+				}
 				break;
 			case TYPE_ASSIGN:
 				//int x = ...
@@ -137,6 +160,8 @@ struct declaration declaration(struct parser * self) {
 				struct block blockData = block(self);
 				struct declaration decl;
 				decl.declarationType = DECL_FUNCTION;
+				decl.nArgTypes = 0;
+				decl.argTypes = NULL;
 				decl.functionBlock = blockData;
 				return decl;
 		}
@@ -164,6 +189,7 @@ struct block block(struct parser * self) {
 			elem.element = malloc(sizeof(struct statement));
 			*((struct statement *)(elem.element)) = stmt;
 			//add data to list
+			//choosing to balk if the user somehow has more than 256 decls/statements in a block
 			if (nBlockElements == 256) {
 				parserError();
 			}
