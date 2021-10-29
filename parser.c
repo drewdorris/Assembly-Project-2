@@ -107,12 +107,15 @@ struct declaration declaration(struct parser * self) {
 		parserNext(self);
 		//main function
 		parserExpectOrError(self,TYPE_LEFT_PAREN);
+		if (parserLookaheadIs(self,TYPE_KW_VOID)) parserNext(self); //skip void, as in int fun(void)
 		parserExpectOrError(self,TYPE_RIGHT_PAREN);
 		parserExpectOrError(self,TYPE_LEFT_BRACE);
 		//function internals
 		struct block blockData = block(self);
 		struct declaration decl;
 		decl.declarationType = DECL_MAIN;
+		decl.nArgTypes = 0;
+		decl.argTypes = NULL;
 		decl.functionBlock = blockData;
 		return decl;
 	} else if (parserLookaheadIs(self,TYPE_IDENTIFIER)) {
