@@ -125,29 +125,33 @@ struct declaration declaration(struct parser * self) {
 		//semicolon, assignment, or function? next token ;, =, or ( determines it
 		switch (parserLookahead(self)->type) {
 			case TYPE_SEMI:
-				//int x;
-				//I'll make an implementation-defined decision to zero-initialise anyway despite null being allowed to indicate no initialiser
-				struct expression * zeroinitExpr = malloc(sizeof(struct expression));
-				switch (varType) {
-					case TYPE_KW_INT:
-					case TYPE_KW_SHORT:
-						int * left = malloc(sizeof(int));
-						zeroinitExpr->left = left;
-						*left = 0;
-						zeroinitExpr->leftType = EXPR_VAL_NUMBER;
-						zeroinitExpr->operator = EXPR_OP_NOP;
-						zeroinitExpr->right = NULL;
-						zeroinitExpr->rightType = EXPR_VAL_UNARY;
-						//It's int x; make the decl struct
-						struct declaration decl;
-						decl.identifier = identifier;
-						decl.declarationType = DECL_VARIABLE;
-						decl.variableType = varType;
-						decl.init = zeroinitExpr;
-						return decl;
-					default:
-						//void x; makes no sense
-						parserError();
+				{
+					//int x;
+					//I'll make an implementation-defined decision to zero-initialise anyway despite null being allowed to indicate no initialiser
+					struct expression * zeroinitExpr = malloc(sizeof(struct expression));
+					switch (varType) {
+						case TYPE_KW_INT:
+						case TYPE_KW_SHORT:
+							{
+								int * left = malloc(sizeof(int));
+								zeroinitExpr->left = left;
+								*left = 0;
+								zeroinitExpr->leftType = EXPR_VAL_NUMBER;
+								zeroinitExpr->operator = EXPR_OP_NOP;
+								zeroinitExpr->right = NULL;
+								zeroinitExpr->rightType = EXPR_VAL_UNARY;
+								//It's int x; make the decl struct
+								struct declaration decl;
+								decl.identifier = identifier;
+								decl.declarationType = DECL_VARIABLE;
+								decl.variableType = varType;
+								decl.init = zeroinitExpr;
+								return decl;
+							}
+						default:
+							//void x; makes no sense
+							parserError();
+					}
 				}
 				break;
 			case TYPE_ASSIGN:
@@ -237,6 +241,97 @@ struct block block(struct parser * self) {
 	block.elements = blockElements;
 	block.nElements = nBlockElements;
 	return block;
+}
+
+//Expressions i.e. "Hello World", 1, 1 + 2, x + 4
+struct expression expression(struct parser * self) {
+	//I won't handle recursive expressions for the moment.
+	struct expression expr;
+	//Negative handling ~
+	{
+		if (parserLookaheadIs(self,TYPE_NEG)) {
+			expr.operator = EXPR_OP_NEG;
+			expr.rightType = EXPR_VAL_UNARY;
+			expr.right = NULL;
+			parserNext(self);
+		}
+	}
+	//Left
+	{
+		struct token * leftToken = parserLookahead(self);
+		switch (leftToken->type) {
+			case TYPE_NUMBER:
+				expr.leftType = EXPR_VAL_NUMBER;
+				expr.left = leftToken->payload;
+				break;
+			case TYPE_STRING:
+				expr.leftType = EXPR_VAL_STRING;
+				expr.left = leftToken->payload;
+				break;
+			case TYPE_IDENTIFIER:
+				expr.leftType = EXPR_VAL_IDENTIFIER;
+				expr.left = leftToken->payload;
+				break;
+			default:
+				parserError();
+				return expr;
+		}
+	}
+	//Neg handling part 2
+	if (expr.operator == EXPR_OP_NEG) {
+		parserExpectOrError(self,TYPE_SEMI);
+		return expr;
+	}
+	//Operator other than neg, or ;
+	{
+		parserNext(self);
+		struct token * opToken = parserLookahead(self);
+		if (parserLookaheadIs(self,TYPE_SEMI)) {
+			expr.operator = EXPR_OP_NOP;
+			expr.rightType = EXPR_VAL_UNARY;
+			expr.right = NULL;
+			return expr;
+		}
+		switch (opToken->type) {
+			case TYPE_ADD:
+				expr.operator = EXPR_OP_ADD;
+				break;
+			case TYPE_SUB:
+				expr.operator = EXPR_OP_SUB;
+				break;
+			case TYPE_OR:
+				expr.operator = EXPR_OP_OR;
+				break;
+			case TYPE_AND:
+				expr.operator = EXPR_OP_AND;
+				break;
+			default:
+				parserError();
+				return expr;
+		}
+	}
+	//Right
+	{
+		struct token * rightToken = parserLookahead(self);
+		switch (rightToken->type) {
+			case TYPE_NUMBER:
+				expr.rightType = EXPR_VAL_NUMBER;
+				expr.right = rightToken->payload;
+				break;
+			case TYPE_STRING:
+				expr.rightType = EXPR_VAL_STRING;
+				expr.right = rightToken->payload;
+				break;
+			case TYPE_IDENTIFIER:
+				expr.rightType = EXPR_VAL_IDENTIFIER;
+				expr.right = rightToken->payload;
+				break;
+			default:
+				parserError();
+				return expr;
+		}
+	}
+	return expr;
 }
 
 //Internals of a printf call.

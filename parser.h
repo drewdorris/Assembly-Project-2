@@ -33,6 +33,8 @@ struct declaration declaration(struct parser * self);
 
 struct block block(struct parser * self);
 
+struct expression expression(struct parser * self);
+
 struct statement printfParse(struct parser * self);
 
 //Nodes
