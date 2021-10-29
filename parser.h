@@ -118,6 +118,7 @@ struct statement {
 	struct expression rhs; // Value of the variable assignment, return number, printf
 	//Function calls
 	//ignore for now- stretch goal
+	//actually, should this be an expression? how should this appear here? should we even care?
 };
 
 void printIndent(int indent);

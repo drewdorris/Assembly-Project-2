@@ -101,7 +101,7 @@ struct program program(struct parser * self) {
 //Declarations, such as variables and functions.
 struct declaration declaration(struct parser * self) {
 	//what is this vartype? skip for now
-	fprintf(stderr,"got a vartype %d\n",parserLookahead(self)->type);
+	int varType = parserLookahead(self)->type;
 	parserNext(self);
 	if (parserLookaheadIs(self,TYPE_KW_MAIN)) {
 		parserNext(self);
@@ -117,9 +117,29 @@ struct declaration declaration(struct parser * self) {
 		return decl;
 	} else if (parserLookaheadIs(self,TYPE_IDENTIFIER)) {
 		//identifier, could be a variable, could be a function
-		//grab identifier here
+		char * identifier = parserLookahead(self)->payload;
 		parserNext(self);
 		//semicolon, assignment, or function? next token ;, =, or ( determines it
+		switch (parserLookahead(self)->type) {
+			case TYPE_SEMI:
+				//int x;
+				break;
+			case TYPE_ASSIGN:
+				//int x = ...
+				break;
+			case TYPE_LEFT_PAREN:
+				//int x(...) {}
+				parserNext(self);
+				//right now ignoring possibility of function arguments and balking
+				parserExpectOrError(self,TYPE_RIGHT_PAREN);
+				if (parserLookaheadIs(self,TYPE_KW_VOID)) parserNext(self); //skip void, as in int fun(void)
+				parserExpectOrError(self,TYPE_LEFT_BRACE);
+				struct block blockData = block(self);
+				struct declaration decl;
+				decl.declarationType = DECL_FUNCTION;
+				decl.functionBlock = blockData;
+				return decl;
+		}
 	}
 }
 
