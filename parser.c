@@ -47,7 +47,7 @@ int parserHasNext(struct parser * self) {
 
 int parserNext(struct parser * self) {
 	if (self->currentToken == self->tokenArrayLength) {
-		return 0;
+		parserError();
 	}
 	self->currentToken++;
 	return 1;
@@ -152,6 +152,7 @@ struct declaration declaration(struct parser * self) {
 				break;
 			case TYPE_ASSIGN:
 				//int x = ...
+				parserNext(self);
 				break;
 			case TYPE_LEFT_PAREN:
 				//int x(...) {}
