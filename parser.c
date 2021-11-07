@@ -170,6 +170,7 @@ struct declaration declaration(struct parser * self) {
 				decl.variableType = varType;
 				decl.init = malloc(sizeof(struct expression));
 				*decl.init = exprData; //assign data via pointer
+				parserExpectOrError(self,TYPE_SEMI);
 				return decl;
 			case TYPE_LEFT_PAREN:
 				//int x(...) {}
@@ -198,8 +199,51 @@ struct block block(struct parser * self) {
 		if (parserLookaheadIs(self,TYPE_KW_INT) || parserLookaheadIs(self,TYPE_KW_SHORT)) {
 			//start of declaration
 			struct declaration decl = declaration(self);
+
+			struct blockElement elem;
+			elem.type = BLCK_DECLARATION;
+			elem.element = elem.element = malloc(sizeof(struct declaration));
+			*((struct declaration *)(elem.element)) = decl;
+			//add data to list
+			if (nBlockElements == 256) {
+				parserError();
+			}
+			blockElements[nBlockElements] = elem;
+			nBlockElements++;
 		} else if (parserLookaheadIs(self,TYPE_IDENTIFIER)) {
 			//Usage of a variable. Probably an assignment statement, though it could also be a function call
+			char * identifier = parserLookahead(self)->payload;
+			//next symbol determines function call or assignment
+			parserNext(self);
+			if (parserLookaheadIs(self,TYPE_ASSIGN)) {
+				//assignment
+				parserNext(self);
+				struct expression expr = expression(self);
+				struct statement stmt;
+				stmt.statementType = STMT_VAR_ASSIGNMENT;
+				stmt.identifier = identifier;
+				stmt.rhs = expr;
+				parserExpectOrError(self,TYPE_SEMI);
+
+				struct blockElement elem;
+				elem.type = BLCK_STATEMENT;
+				elem.element = elem.element = malloc(sizeof(struct statement));
+				*((struct statement *)(elem.element)) = stmt;
+				//add data to list
+				if (nBlockElements == 256) {
+					parserError();
+				}
+				blockElements[nBlockElements] = elem;
+				nBlockElements++;
+
+			} else if (parserLookaheadIs(self,TYPE_LEFT_PAREN)) {
+				//function call
+				//let's not handle this one for now as spec does not require it
+				parserError();
+			} else {
+				//something we can't handle
+				parserError();
+			}
 		} else if (parserLookaheadIs(self,TYPE_KW_PRINTF)) {
 			//printf here, definitely a print call
 			parserNext(self);
