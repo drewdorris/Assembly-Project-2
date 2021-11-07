@@ -157,7 +157,20 @@ struct declaration declaration(struct parser * self) {
 			case TYPE_ASSIGN:
 				//int x = ...
 				parserNext(self);
-				break;
+				//expression follows now
+				struct expression exprData = expression(self);
+				if (exprData.leftType == EXPR_VAL_STRING) {
+					//Can't assign a string to an int/short as this makes no sense
+					parserError();
+				}
+				//otherwise this is fine
+				struct declaration decl;
+				decl.identifier = identifier;
+				decl.declarationType = DECL_VARIABLE;
+				decl.variableType = varType;
+				decl.init = malloc(sizeof(struct expression));
+				*decl.init = exprData; //assign data via pointer
+				return decl;
 			case TYPE_LEFT_PAREN:
 				//int x(...) {}
 				parserNext(self);
