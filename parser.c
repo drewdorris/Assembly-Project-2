@@ -498,7 +498,7 @@ void printExpression(struct expression * expr) {
 			}
 			break;
 		case EXPR_VAL_STRING:
-			printf("\"%s\"",expr->left);
+			printf("\"%s\"",(char *) expr->left);
 			break;
 		case EXPR_VAL_EXPRESSION:
 			printExpression(expr->left);
@@ -531,10 +531,13 @@ void printExpression(struct expression * expr) {
 	}
 	switch (expr->rightType) {
 		case EXPR_VAL_NUMBER:
-			printf("%d",expr->right);
+			{
+				int * val = (int *) expr->right;
+				printf("%d",*val);
+			}
 			break;
 		case EXPR_VAL_STRING:
-			printf("\"%s\"",expr->right);
+			printf("\"%s\"",(char *) expr->right);
 			break;
 		case EXPR_VAL_EXPRESSION:
 			printExpression(expr->right);
