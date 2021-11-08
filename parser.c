@@ -180,12 +180,12 @@ struct declaration declaration(struct parser * self) {
 				if (parserLookaheadIs(self,TYPE_KW_VOID)) parserNext(self); //skip void, as in int fun(void)
 				parserExpectOrError(self,TYPE_LEFT_BRACE);
 				struct block blockData = block(self);
-				struct declaration decl;
-				decl.declarationType = DECL_FUNCTION;
-				decl.nArgTypes = 0;
-				decl.argTypes = NULL;
-				decl.functionBlock = blockData;
-				return decl;
+				struct declaration fdecl;
+				fdecl.declarationType = DECL_FUNCTION;
+				fdecl.nArgTypes = 0;
+				fdecl.argTypes = NULL;
+				fdecl.functionBlock = blockData;
+				return fdecl;
 		}
 	}
 }
