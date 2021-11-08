@@ -37,24 +37,24 @@ void pepBlock(struct block * block) {
 				pepDeclaration(elem->element);
 				break;
 			case BLCK_STATEMENT:
-				printStatement(elem->element);
+				pepStatement(elem->element);
 				break;
 		}
 		printf("\n");
 	}
 }
 
-void printStatement(struct statement * stmt) {
+void pepStatment(struct statement * stmt) {
 	
 	printf("Statement ");
 	switch (stmt->statementType) {
 		case STMT_RETURN:
 			printf("RETURN ");
-			printExpression(&stmt->rhs);
+			pepExpression(&stmt->rhs);
 			break;
 		case STMT_PRINTF_CALL:
 			printf("PRINTF ");
-			printExpression(&stmt->rhs);
+			pepExpression(&stmt->rhs);
 			break;
 		default:
 			printf("unknown");
@@ -62,7 +62,7 @@ void printStatement(struct statement * stmt) {
 	}
 }
 
-void printExpression(struct expression * expr) {
+void pepExpression(struct expression * expr) {
 	printf("(");
 	switch (expr->leftType) {
 		case EXPR_VAL_NUMBER:
@@ -75,7 +75,7 @@ void printExpression(struct expression * expr) {
 			printf("\"%s\"",expr->left);
 			break;
 		case EXPR_VAL_EXPRESSION:
-			printExpression(expr->left);
+			pepExpression(expr->left);
 			break;
 		default:
 			printf(" <unknown>");
@@ -111,7 +111,7 @@ void printExpression(struct expression * expr) {
 			printf("\"%s\"",expr->right);
 			break;
 		case EXPR_VAL_EXPRESSION:
-			printExpression(expr->right);
+			pepExpression(expr->right);
 			break;
 		case EXPR_VAL_UNARY:
 			printf(" <not used>");
