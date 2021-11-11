@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "parser.h"
 #include "token.h"
 
@@ -121,6 +122,9 @@ struct declaration declaration(struct parser * self) {
 	} else if (parserLookaheadIs(self,TYPE_IDENTIFIER)) {
 		//identifier, could be a variable, could be a function
 		char * identifier = parserLookahead(self)->payload;
+		if (strlen(identifier) > 8) {
+			parserError(); //prohibit identifier names longer than 8 chars
+		}
 		parserNext(self);
 		//semicolon, assignment, or function? next token ;, =, or ( determines it
 		switch (parserLookahead(self)->type) {
