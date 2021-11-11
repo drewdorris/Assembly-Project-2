@@ -45,62 +45,59 @@ void pepBlock(struct block * block) {
 }
 
 void pepStatment(struct statement * stmt) {
-	
-	printf("Statement ");
+	printf("#Statement\n");
 	switch (stmt->statementType) {
 		case STMT_RETURN:
 			printf("RETURN ");
 			pepExpression(&stmt->rhs);
 			break;
 		case STMT_PRINTF_CALL:
-			printf("PRINTF ");
+			printf("\tSTRO msg%d\n", msgCount);
 			pepExpression(&stmt->rhs);
 			break;
 		default:
-			printf("unknown");
+			error("invalid statement type");
 			break;
 	}
 }
 
 void pepExpression(struct expression * expr) {
-	printf("(");
 	switch (expr->leftType) {
 		case EXPR_VAL_NUMBER:
 			{
 				int * val = (int *) expr->left;
-				printf("%d",*val);
+
+				printf("\tLDWA %x",*val);
 			}
 			break;
 		case EXPR_VAL_STRING:
-			printf("\"%s\"",expr->left);
+			printf("msg%d: \"%s\\x00\"\n",msgCount++, expr->left);
 			break;
 		case EXPR_VAL_EXPRESSION:
 			pepExpression(expr->left);
 			break;
 		default:
-			printf(" <unknown>");
+			error("invalid left expression");
+			break;
 	}
 	switch (expr->operator) {
 		case EXPR_OP_ADD:
-			printf(" ADD");
+			printf(" ADDA");
 			break;
 		case EXPR_OP_SUB:
-			printf(" SUB");
+			printf(" SUBA");
 			break;
 		case EXPR_OP_NEG:
-			printf(" NEG");
+			printf(" NEGA"); //??? may need to account for 2's compliment
 			break;
 		case EXPR_OP_AND:
-			printf(" AND");
+			printf(" ANDA");
 			break;
 		case EXPR_OP_OR:
-			printf(" OR");
-			break;
-		case EXPR_OP_NOP:
-			printf(" <not used>");
+			printf(" ORA");
 			break;
 		default:
-			printf(" <unknown>");
+		error("invalid expression operator");
 			break;
 	}
 	switch (expr->rightType) {
@@ -114,11 +111,17 @@ void pepExpression(struct expression * expr) {
 			pepExpression(expr->right);
 			break;
 		case EXPR_VAL_UNARY:
-			printf(" <not used>");
+			error("expression right not implemented");
 			break;
 		default:
-			printf(" <unknown>");
+			error("invalid right expression");
 			break;
 	}
-	printf(")");
+	printf("\n");
+}
+
+void error(char * msgOut)
+{
+	printf("ERROR: %s", msgOut);
+	exit(1);
 }
