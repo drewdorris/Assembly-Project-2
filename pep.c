@@ -27,7 +27,7 @@ void pepDeclaration(struct declaration * decl) {
             printf("%s:\t.WORD\n", decl->identifier);
 			if (decl->init!=NULL) {
 				pepExpression(decl->init);
-				printf("STWA %s,d\n", decl->identifier);
+				printf("\tSTWA %s,d\n", decl->identifier);
 			}
             break;
         // for method/functions if implemented
@@ -58,7 +58,7 @@ void pepStatement(struct statement * stmt) {
 	switch (stmt->statementType) {
 		case STMT_VAR_ASSIGNMENT:
 			pepExpression(&stmt->rhs);
-			printf("STWA %s,d\n", stmt->identifier);
+			printf("\tSTWA %s,d\n", stmt->identifier);
 			break;
 		case STMT_RETURN:
 			printf("STOP\n.end");
@@ -80,7 +80,7 @@ void pepExpression(struct expression * expr) {
 			{
 				int * val = (int *) expr->left;
 
-				printf("\tLDWA %x,i",*val);
+				printf("\tLDWA 0x%x,i",*val);
 			}
 			break;
 		case EXPR_VAL_STRING:
