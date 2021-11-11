@@ -21,7 +21,7 @@ void parserDebug(void) {
 	tokens[5].type = TYPE_KW_PRINTF;
 	tokens[6].type = TYPE_LEFT_PAREN;
 	tokens[7].type = TYPE_STRING;
-	tokens[7].payload = "Hello World!\n";
+	tokens[7].payload = "Hello World!\\n";
 	tokens[8].type = TYPE_RIGHT_PAREN;
 	tokens[9].type = TYPE_SEMI;
 	tokens[10].type = TYPE_KW_RETURN;
