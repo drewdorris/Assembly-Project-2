@@ -15,26 +15,13 @@ BLUE="\e[34m"
 GREEN="\e[32m"
 PURPLE="\e[35m"
 CYAN="\e[36m"
-HORIZONTAL_LINE="================================="
-
-## Error checking  ####################
-if [[ $# -ne 1 ]]; then
-  echo -e $CYAN" Usage: fileinfo.sh input_file"$DEFAULT
-  exit 1
-fi
-## check file type
-type=$(file -b $1)
-if [[ $type != "ASCII text" ]]; then
-	echo -e $CYAN"Error! $1 is not a text file."
-	exit 1
-fi
-#########################################
+H_LINE="================================="
 
 #variables
 count=1
-lines=$(wc $1 | tr -s ' ' | cut -d' ' -f2)
-words=$(wc $1 | tr -s ' ' | cut -d' ' -f3)
-characters=$(wc $1 | tr -s ' ' | cut -d' ' -f4)
+fileIn=false
+stringIn=""
+fileOut=false
 
 ###########
 #functions#
@@ -58,14 +45,25 @@ while true
 do
 	clear
 	printf $GREEN"\tMENU\n"
-	printf "%s\n" "$HORIZONTAL_LINE"
-	printf "# 1. Display all \n"
-	printf "# 2. Display Summary Info\n"
-	printf "# 3. # of Lines\n"
-	printf "# 4. # of Words\n"
- 	printf "# 5. # of Characters\n"
-	printf "# 6. Exit\n"
-        printf "%s\n"$DEFAULT "$HORIZONTAL_LINE"
+	printf "%s\n" "$H_LINE"
+
+	#Check status of input and display
+	if [ $fileIn = true && stringIn = ""]; then
+		printf $RED"!! Currently no input string\n"$GREEN
+	fi
+	#Check input type and display
+	if [ $fileIn = true ]; then
+		printf "# Input Type: File\n"
+	else
+		printf "# Input Type"
+
+	printf "%s\n" "$H_LINE"
+	printf "# 1. Add Terminal Input\n"
+	printf "# 2. Add File Input\n"
+	printf "# 3. Toggle File Output\n"
+	printf "# 4. Toggle Terminal Output\n"
+	printf "# 5. Exit\n"
+        printf "%s\n"$DEFAULT "$H_LINE"
 
 	read -p "Enter selection: "
 
@@ -82,10 +80,7 @@ do
                 4) header " # of Words\n"
                    display_words $1
                    ;;
-                5) header " # of Characters\n"
-                   display_characters $1
-                   ;;
-                6)clear
+                5)clear
 		  printf "So long and thanks for all the fish!"
 		  sleep 1s
 		  clear 

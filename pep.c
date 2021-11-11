@@ -6,6 +6,7 @@
 //VARIABLES
 int msgCount = 0;
 
+// Function: begin printing Pep9 conversion.
 void pepProgramTree(struct program * root) {
 	printf(";C Program to Pep9 (%d declarations)\n",root->nDeclarations);
 	for (int i = 0; i < root->nDeclarations; i++) {
@@ -79,7 +80,7 @@ void pepExpression(struct expression * expr) {
 			{
 				int * val = (int *) expr->left;
 
-				printf("\tLDWA %x\n,i",*val);
+				printf("\tLDWA %x,i",*val);
 			}
 			break;
 		case EXPR_VAL_STRING:
