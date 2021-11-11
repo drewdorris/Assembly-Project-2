@@ -37,11 +37,11 @@ void pepDeclaration(struct declaration * decl) {
 			break;
         // for variable decl. outside of main
         case DECL_VARIABLE:
-            //TODO
+            printf("%s:\t.WORD\n", &decl->identifier);
             break;
         // for method/functions if implemented
         case DECL_FUNCTION:
-            //TODO
+            printf("%s:\t", &decl->identifier);
             break;
 	}
 }
@@ -123,7 +123,7 @@ void pepExpression(struct expression * expr) {
 			{
 				int * val = (int *) expr->left;
 
-				printf("\ti,%x",*val);
+				printf("\ti,%x\n",*val);
 			}
 			break;
 		case EXPR_VAL_STRING:
