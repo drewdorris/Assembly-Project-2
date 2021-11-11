@@ -7,14 +7,14 @@
 int msgCount = 0;
 
 void pepProgramTree(struct program * root) {
-	printf("#C Program to Pep9 (%d declarations)\n",root->nDeclarations);
+	printf(";C Program to Pep9 (%d declarations)\n",root->nDeclarations);
 	for (int i = 0; i < root->nDeclarations; i++) {
 		pepDeclaration(&root->declarations[i]);
 	}
 }
 
 void pepDeclaration(struct declaration * decl) {
-	printf("#Declaration\n");
+	printf(";Declaration\n");
 	switch (decl->declarationType) {
         // write tag and go into main block
 		case DECL_MAIN:
@@ -33,7 +33,7 @@ void pepDeclaration(struct declaration * decl) {
 }
 
 void pepBlock(struct block * block) {
-	printf("#Block (%d elements)\n",block->nElements);
+	printf(";Block (%d elements)\n",block->nElements);
 	for (int i = 0; i < block->nElements; i++) {
 		struct blockElement * elem = &block->elements[i];
 		switch (elem->type) {
@@ -49,13 +49,13 @@ void pepBlock(struct block * block) {
 }
 
 void pepStatement(struct statement * stmt) {
-	printf("#Statement\n");
+	printf(";Statement\n");
 	switch (stmt->statementType) {
 		case STMT_RETURN:
-			printf("STOP");
+			printf("STOP\n.end");
 			break;
 		case STMT_PRINTF_CALL:
-			printf("\tSTRO msg%d\n", msgCount);
+			printf("\tSTRO msg%d,d\n", msgCount);
 			printf("\tbr mjp%d\n", msgCount);
 			pepExpression(&stmt->rhs);
 			break;
@@ -71,7 +71,7 @@ void pepExpression(struct expression * expr) {
 			{
 				int * val = (int *) expr->left;
 
-				printf("\tLDWA i,%x\n",*val);
+				printf("\tLDWA %x\n,i",*val);
 			}
 			break;
 		case EXPR_VAL_STRING:
