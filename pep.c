@@ -52,11 +52,11 @@ void pepStatement(struct statement * stmt) {
 	printf("#Statement\n");
 	switch (stmt->statementType) {
 		case STMT_RETURN:
-			printf(".end");
-			pepExpression(&stmt->rhs);
+			printf("STOP");
 			break;
 		case STMT_PRINTF_CALL:
 			printf("\tSTRO msg%d\n", msgCount);
+			printf("\tbr mjp%d\n", msgCount);
 			pepExpression(&stmt->rhs);
 			break;
 		default:
@@ -75,7 +75,8 @@ void pepExpression(struct expression * expr) {
 			}
 			break;
 		case EXPR_VAL_STRING:
-			printf("msg%d: \"%s\\x00\"\n",msgCount++, (char *)expr->left);
+			printf("msg%d:\t.ASCII\t\"%s\\x00\"\n",msgCount, (char *)expr->left);
+			printf("mjp%d:\tNOP0\n", msgCount++);
 			break;
 		case EXPR_VAL_EXPRESSION:
 			pepExpression(expr->left);
@@ -100,6 +101,8 @@ void pepExpression(struct expression * expr) {
 		case EXPR_OP_OR:
 			printf("\tORA");
 			break;
+		case EXPR_OP_NOP:
+			break;
 		default:
 		error("invalid expression operator");
 			break;
@@ -120,7 +123,6 @@ void pepExpression(struct expression * expr) {
 			pepExpression(expr->right);
 			break;
 		case EXPR_VAL_UNARY:
-			error("expression right not implemented");
 			break;
 		default:
 			error("invalid right expression");
