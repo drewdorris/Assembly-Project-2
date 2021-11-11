@@ -24,6 +24,10 @@ void pepDeclaration(struct declaration * decl) {
         // for variable decl. outside of main
         case DECL_VARIABLE:
             printf("%s:\t.WORD\n", decl->identifier);
+			if (decl->init!=NULL) {
+				pepExpression(decl->init);
+				printf("STWA %s,d\n", decl->identifier);
+			}
             break;
         // for method/functions if implemented
         case DECL_FUNCTION:
@@ -51,6 +55,10 @@ void pepBlock(struct block * block) {
 void pepStatement(struct statement * stmt) {
 	printf(";Statement\n");
 	switch (stmt->statementType) {
+		case STMT_VAR_ASSIGNMENT:
+			pepExpression(&stmt->rhs);
+			printf("STWA %s,d\n", stmt->identifier);
+			break;
 		case STMT_RETURN:
 			printf("STOP\n.end");
 			break;
@@ -78,6 +86,7 @@ void pepExpression(struct expression * expr) {
 			printf("msg%d:\t.ASCII\t\"%s\\x00\"\n",msgCount, (char *)expr->left);
 			printf("mjp%d:\tNOP0\n", msgCount++);
 			break;
+
 		case EXPR_VAL_EXPRESSION:
 			pepExpression(expr->left);
 			break;
