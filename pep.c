@@ -66,7 +66,7 @@ void pepStatment(struct statement * stmt) {
 	printf("#Statement\n");
 	switch (stmt->statementType) {
 		case STMT_RETURN:
-			printf("RETURN ");
+			printf(".end");
 			pepExpression(&stmt->rhs);
 			break;
 		case STMT_PRINTF_CALL:
@@ -85,7 +85,7 @@ void pepExpression(struct expression * expr) {
 			{
 				int * val = (int *) expr->left;
 
-				printf("\tLDWA %x",*val);
+				printf("\tLDWA i,%x",*val);
 			}
 			break;
 		case EXPR_VAL_STRING:
@@ -106,7 +106,7 @@ void pepExpression(struct expression * expr) {
 			printf(" SUBA");
 			break;
 		case EXPR_OP_NEG:
-			printf(" NEGA"); //??? may need to account for 2's compliment
+			printf(" NOTA");
 			break;
 		case EXPR_OP_AND:
 			printf(" ANDA");
