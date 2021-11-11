@@ -37,11 +37,11 @@ void pepDeclaration(struct declaration * decl) {
 			break;
         // for variable decl. outside of main
         case DECL_VARIABLE:
-            printf("%s:\t.WORD\n", &decl->identifier);
+            printf("%s:\t.WORD\n", decl->identifier);
             break;
         // for method/functions if implemented
         case DECL_FUNCTION:
-            printf("%s:\t", &decl->identifier);
+            printf("%s:\t", decl->identifier);
             break;
 	}
 }
@@ -62,7 +62,7 @@ void pepBlock(struct block * block) {
 	}
 }
 
-void pepStatment(struct statement * stmt) {
+void pepStatement(struct statement * stmt) {
 	printf("#Statement\n");
 	switch (stmt->statementType) {
 		case STMT_RETURN:
@@ -89,7 +89,7 @@ void pepExpression(struct expression * expr) {
 			}
 			break;
 		case EXPR_VAL_STRING:
-			printf("msg%d: \"%s\\x00\"\n",msgCount++, expr->left);
+			printf("msg%d: \"%s\\x00\"\n",msgCount++, (char *)expr->left);
 			break;
 		case EXPR_VAL_EXPRESSION:
 			pepExpression(expr->left);
