@@ -2,6 +2,24 @@
 #include <stdlib.h>
 #include "parser.h"
 
+//VARIABLES
+int msgCount = 0;
+
+//FUNCTIONS
+void pepIndent(int indent);
+
+void pepProgramTree(struct program * root);
+
+void pepDeclaration(struct declaration * decl);
+
+void pepBlock(struct block * block);
+
+void pepStatement(struct statement * stmt);
+
+void pepExpression(struct expression * expr);
+
+void error(char * msgOut);
+
 void pepProgramTree(struct program * root) {
 	printf("#C Program to Pep9 (%d declarations)\n",root->nDeclarations);
 	for (int i = 0; i < root->nDeclarations; i++) {
