@@ -264,6 +264,34 @@ struct block block(struct parser * self) {
 			}
 			blockElements[nBlockElements] = elem;
 			nBlockElements++;
+		} else if (parserLookaheadIs(self,TYPE_KW_SCANF)) {
+			//scanf ( "ignored" , & ident ) ;
+			parserNext(self);
+			parserExpectOrError(self,TYPE_LEFT_PAREN);
+			parserExpectOrError(self,TYPE_STRING);
+			parserExpectOrError(self,TYPE_COMMA);
+			parserExpectOrError(self,TYPE_AND);
+			if (!parserLookaheadIs(self,TYPE_IDENTIFIER)) {
+				parserError();
+			}
+			char * scanfTarget = (char *) parserLookahead(self)->payload;
+			parserExpectOrError(self,TYPE_RIGHT_PAREN);
+			parserExpectOrError(self,TYPE_SEMI);
+
+			struct statement stmt;
+			stmt.statementType = STMT_SCANF_CALL;
+			stmt.identifier = scanfTarget;
+
+			struct blockElement elem;
+			elem.type = BLCK_STATEMENT;
+			elem.element = elem.element = malloc(sizeof(struct statement));
+			*((struct statement *)(elem.element)) = stmt;
+			//add data to list
+			if (nBlockElements == 256) {
+				parserError();
+			}
+			blockElements[nBlockElements] = elem;
+			nBlockElements++;
 		} else if (parserLookaheadIs(self,TYPE_KW_RETURN)) {
 			//Return statement
 			parserNext(self);
