@@ -66,7 +66,7 @@ void pepStatment(struct statement * stmt) {
 	printf("#Statement\n");
 	switch (stmt->statementType) {
 		case STMT_RETURN:
-			printf("RETURN ");
+			printf(".end");
 			pepExpression(&stmt->rhs);
 			break;
 		case STMT_PRINTF_CALL:
@@ -85,7 +85,7 @@ void pepExpression(struct expression * expr) {
 			{
 				int * val = (int *) expr->left;
 
-				printf("\tLDWA %x",*val);
+				printf("\tLDWA i,%x\n",*val);
 			}
 			break;
 		case EXPR_VAL_STRING:
@@ -100,19 +100,19 @@ void pepExpression(struct expression * expr) {
 	}
 	switch (expr->operator) {
 		case EXPR_OP_ADD:
-			printf(" ADDA");
+			printf("\tADDA");
 			break;
 		case EXPR_OP_SUB:
-			printf(" SUBA");
+			printf("\tSUBA");
 			break;
 		case EXPR_OP_NEG:
-			printf(" NEGA"); //??? may need to account for 2's compliment
+			printf("\tNOTA");
 			break;
 		case EXPR_OP_AND:
-			printf(" ANDA");
+			printf("\tANDA");
 			break;
 		case EXPR_OP_OR:
-			printf(" ORA");
+			printf("\tORA");
 			break;
 		default:
 		error("invalid expression operator");
@@ -120,12 +120,17 @@ void pepExpression(struct expression * expr) {
 	}
 	switch (expr->rightType) {
 		case EXPR_VAL_NUMBER:
-			printf("%d",expr->right);
+			{
+				int * val = (int *) expr->left;
+
+				printf("\ti,%x",*val);
+			}
 			break;
 		case EXPR_VAL_STRING:
-			printf("\"%s\"",expr->right);
+			error("cannot have string as right hand expression value");
 			break;
 		case EXPR_VAL_EXPRESSION:
+			printf("\n");
 			pepExpression(expr->right);
 			break;
 		case EXPR_VAL_UNARY:
