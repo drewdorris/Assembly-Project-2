@@ -3,6 +3,7 @@
 #include <string.h>
 #include "parser.h"
 #include "token.h"
+#include "pep.h"
 
 void parserDebug(void) {
 	/*
@@ -35,7 +36,7 @@ void parserDebug(void) {
 	testParser.tokenArrayLength = 14;
 	parserInit(&testParser);
 	struct program prgm = program(&testParser);
-	printProgramTree(&prgm);
+	pepProgramTree(&prgm);
 }
 
 void parserInit(struct parser * self) {
