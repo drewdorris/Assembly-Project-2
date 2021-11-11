@@ -180,8 +180,8 @@ struct declaration declaration(struct parser * self) {
 				//int x(...) {}
 				parserNext(self);
 				//right now ignoring possibility of function arguments and balking
-				parserExpectOrError(self,TYPE_RIGHT_PAREN);
 				if (parserLookaheadIs(self,TYPE_KW_VOID)) parserNext(self); //skip void, as in int fun(void)
+				parserExpectOrError(self,TYPE_RIGHT_PAREN);
 				parserExpectOrError(self,TYPE_LEFT_BRACE);
 				struct block blockData = block(self);
 				struct declaration fdecl;
