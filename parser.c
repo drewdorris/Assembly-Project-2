@@ -78,7 +78,7 @@ int parserHasNext(struct parser * self) {
 
 int parserNext(struct parser * self) {
 	if (self->currentToken == self->tokenArrayLength) {
-		self;
+		parserError(self);
 	}
 	self->currentToken++;
 	return 1;
@@ -155,7 +155,7 @@ struct declaration declaration(struct parser * self) {
 		//identifier, could be a variable, could be a function
 		char * identifier = parserLookahead(self)->payload;
 		if (strlen(identifier) > 8) {
-			self; //prohibit identifier names longer than 8 chars
+			parserError(self); //prohibit identifier names longer than 8 chars
 		}
 		parserNext(self);
 		//semicolon, assignment, or function? next token ;, =, or ( determines it
@@ -187,7 +187,7 @@ struct declaration declaration(struct parser * self) {
 							}
 						default:
 							//void x; makes no sense
-							self;
+							parserError(self);
 					}
 				}
 				break;
@@ -198,7 +198,7 @@ struct declaration declaration(struct parser * self) {
 				struct expression exprData = expression(self);
 				if (exprData.leftType == EXPR_VAL_STRING) {
 					//Can't assign a string to an int/short as this makes no sense
-					self;
+					parserError(self);
 				}
 				//otherwise this is fine
 				struct declaration decl;
@@ -242,7 +242,7 @@ struct block block(struct parser * self) {
 			*((struct declaration *)(elem.element)) = decl;
 			//add data to list
 			if (nBlockElements == 256) {
-				self;
+				parserError(self);
 			}
 			blockElements[nBlockElements] = elem;
 			nBlockElements++;
@@ -267,7 +267,7 @@ struct block block(struct parser * self) {
 				*((struct statement *)(elem.element)) = stmt;
 				//add data to list
 				if (nBlockElements == 256) {
-					self;
+					parserError(self);
 				}
 				blockElements[nBlockElements] = elem;
 				nBlockElements++;
@@ -275,10 +275,10 @@ struct block block(struct parser * self) {
 			} else if (parserLookaheadIs(self,TYPE_LEFT_PAREN)) {
 				//function call
 				//let's not handle this one for now as spec does not require it
-				self;
+				parserError(self);
 			} else {
 				//something we can't handle
-				self;
+				parserError(self);
 			}
 		} else if (parserLookaheadIs(self,TYPE_KW_PRINTF)) {
 			//printf here, definitely a print call
@@ -292,7 +292,7 @@ struct block block(struct parser * self) {
 			//add data to list
 			//choosing to balk if the user somehow has more than 256 decls/statements in a block
 			if (nBlockElements == 256) {
-				self;
+				parserError(self);
 			}
 			blockElements[nBlockElements] = elem;
 			nBlockElements++;
@@ -304,7 +304,7 @@ struct block block(struct parser * self) {
 			parserExpectOrError(self,TYPE_COMMA);
 			parserExpectOrError(self,TYPE_AND);
 			if (!parserLookaheadIs(self,TYPE_IDENTIFIER)) {
-				self;
+				parserError(self);
 			}
 			char * scanfTarget = (char *) parserLookahead(self)->payload;
 			parserExpectOrError(self,TYPE_RIGHT_PAREN);
@@ -320,7 +320,7 @@ struct block block(struct parser * self) {
 			*((struct statement *)(elem.element)) = stmt;
 			//add data to list
 			if (nBlockElements == 256) {
-				self;
+				parserError(self);
 			}
 			blockElements[nBlockElements] = elem;
 			nBlockElements++;
@@ -346,16 +346,16 @@ struct block block(struct parser * self) {
 			*((struct statement *)(elem.element)) = stmt;
 			//add data to list
 			if (nBlockElements == 256) {
-				self;
+				parserError(self);
 			}
 			blockElements[nBlockElements] = elem;
 			nBlockElements++;
 		} else if (parserLookaheadIs(self,TYPE_KW_IF)) {
 			//If statement-not handling now
-			self;
+			parserError(self);
 		} else if (parserLookaheadIs(self,TYPE_KW_WHILE)) {
 			//While statement- not doing that now
-			self;
+			parserError(self);
 		}
 	}
 	struct block block;
@@ -394,7 +394,7 @@ struct expression expression(struct parser * self) {
 				expr.left = leftToken->payload;
 				break;
 			default:
-				self;
+				parserError(self);
 				return expr;
 		}
 	}
@@ -427,7 +427,7 @@ struct expression expression(struct parser * self) {
 				expr.operator = EXPR_OP_AND;
 				break;
 			default:
-				self;
+				parserError(self);
 				return expr;
 		}
 	}
@@ -448,7 +448,7 @@ struct expression expression(struct parser * self) {
 				expr.right = rightToken->payload;
 				break;
 			default:
-				self;
+				parserError(self);
 				return expr;
 		}
 	}
@@ -462,7 +462,7 @@ struct expression expression(struct parser * self) {
 struct statement printfParse(struct parser * self) {
 	parserExpectOrError(self,TYPE_LEFT_PAREN);
 	if (!parserLookaheadIs(self,TYPE_STRING)) {
-		self; //string must be here
+		parserError(self); //string must be here
 	}
 
 	struct statement printfStmt;
@@ -487,7 +487,7 @@ struct statement printfParse(struct parser * self) {
 		parserExpectOrError(self,TYPE_RIGHT_PAREN);
 		parserExpectOrError(self,TYPE_SEMI);
 	} else {
-		self;
+		parserError(self);
 	}
 	return printfStmt;
 }
