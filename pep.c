@@ -1,13 +1,35 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "parser.h"
 #include "pep.h"
 
 //VARIABLES
 int msgCount = 0;
+char * tempString;
+int tempSize;
+struct varList vars;
+
+void varListInit(struct varList * self) {
+	self->varList = (char **)malloc(sizeof(char *) * 10);
+    self->allocSize = 10;
+    self->size = 0;
+};
+
+void addVar(struct varList * self, char * newVar) {
+    if (self->size == self->allocSize) {
+        self->varList = (char **)realloc(self->varList, sizeof(char *) * self->allocSize * 2);
+        self->allocSize = self->allocSize * 2;
+    }
+    self->varList[self->size++] = newVar;
+};
 
 // Function: begin printing Pep9 conversion.
 void pepProgramTree(struct program * root) {
+	tempString = (char *)malloc(sizeof(char *) * 50);
+	int tempSize = 50;
+	varListInit(&vars);
 	printf(";C Program to Pep9 (%d declarations)\n",root->nDeclarations);
 	for (int i = 0; i < root->nDeclarations; i++) {
 		pepDeclaration(&root->declarations[i]);
@@ -24,7 +46,9 @@ void pepDeclaration(struct declaration * decl) {
 			break;
         // for variable decl. outside of main
         case DECL_VARIABLE:
-            printf("%s:\t.WORD\n", decl->identifier);
+			// no need to check for allocation size as the below sprintf function can only have a max size of 16 chars
+			sprintf(tempString, "%s:\t.WORD\n", decl->identifier);
+			addVar(&vars, tempString);
 			if (decl->init!=NULL) {
 				pepExpression(decl->init);
 				printf("\tSTWA %s,d\n", decl->identifier);
@@ -61,11 +85,11 @@ void pepStatement(struct statement * stmt) {
 			printf("\tSTWA %s,d\n", stmt->identifier);
 			break;
 		case STMT_RETURN:
+			printVars(&vars);
 			printf("STOP\n.end");
 			break;
 		case STMT_PRINTF_CALL:
 			printf("\tSTRO msg%d,d\n", msgCount);
-			printf("\tbr mjp%d\n", msgCount);
 			pepExpression(&stmt->rhs);
 			break;
 		default:
@@ -84,8 +108,12 @@ void pepExpression(struct expression * expr) {
 			}
 			break;
 		case EXPR_VAL_STRING:
-			printf("msg%d:\t.ASCII\t\"%s\\x00\"\n",msgCount, (char *)expr->left);
-			printf("mjp%d:\tNOP0\n", msgCount++);
+			if (tempSize <= (30 + strlen((char *)expr->left))) {
+				tempString = realloc(tempString, sizeof(char *) * tempSize);
+				tempSize = tempSize * 2;
+			}
+			sprintf(tempString, "msg%d:\t.ASCII\t\"%s\\x00\"\n", msgCount++, (char *)expr->left);
+			addVar(&vars, tempString);
 			break;
 
 		case EXPR_VAL_EXPRESSION:
@@ -139,6 +167,14 @@ void pepExpression(struct expression * expr) {
 			break;
 	}
 	printf("\n");
+}
+
+void printVars(struct varList * vars) {
+	printf("STOP\n");
+	for (int i = 0; i < vars->size; i++)
+	{
+		printf("%s\n", vars->varList[i]);
+	}
 }
 
 void error(char * msgOut)

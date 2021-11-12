@@ -63,7 +63,7 @@ do
 	printf "# 3. Toggle File Output\n"
 	printf "# 4. Toggle Terminal Output\n"
 	printf "# 5. Exit\n"
-        printf "%s\n"$DEFAULT "$H_LINE"
+    printf "%s\n"$DEFAULT "$H_LINE"
 
 	read -p "Enter selection: "
 
