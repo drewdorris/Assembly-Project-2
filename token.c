@@ -107,27 +107,11 @@ void tokenize(char *argv, int size) {
 
                 case 'p':
                 {
-					/*
-                    //TODO finish implementation of keyword comparitor
-                    int isPrintf = 0;
-                    char printfStr[3];
-
-                    for (int j = 0; j < 3; j++) {
-                        strcat(intStr, (char *) &argv[i]);
-                    }
-
-                    while (strcmp("int",intStr) != 0) {
-                        isInt = 1;
-                    }
-
-                    if (isInt == 1){
-                        struct token token;
-                        token.type = TYPE_KW_INT;
-                        i = i + 2;
-                        break;
-                    }
-					*/
-					break;
+					if (tryForString(argv,i,size,"printf")) {
+						pushTokenType(TYPE_KW_PRINTF);
+						i = i + 5;
+						break;
+					}
                 }
 
                 case '"':
