@@ -81,6 +81,11 @@ void tokenize(char *argv, int size) {
 				break;
 			}
 
+            case '=':
+            {
+                pushTokenType(TYPE_CD_EQUAL);
+            }
+
 			case '(':
 			{
 				pushTokenType(TYPE_LEFT_PAREN);
@@ -186,7 +191,7 @@ char * tokenTypeString(int typeId) {
 		case TYPE_OR: return "OR";
 		case TYPE_NEG: return "NEG";
 		case TYPE_ASSIGN: return "ASSIGN";
-		case TYPE_EQUAL: return "EQUAL";
+		case TYPE_CD_EQUAL: return "EQUAL";
 		//Keywords and identifiers that we can cheat as keywords
 		case TYPE_KW_INT: return "KW_INT";
 		case TYPE_KW_SHORT: return "KW_SHORT";

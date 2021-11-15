@@ -28,32 +28,38 @@ struct token {
 #define TYPE_IDENTIFIER 2 // Identifier, such as a variable. Payload: char * (string)
 #define TYPE_STRING 3 // String in "quotes". Payload: char * (string)
 //Punctuations
-#define TYPE_LEFT_PAREN 4 // (
-#define TYPE_RIGHT_PAREN 5 // )
-#define TYPE_LEFT_BRACE 6 // {
-#define TYPE_RIGHT_BRACE 7 // }
-#define TYPE_COMMA 8 // ,
-#define TYPE_SEMI 9 // 
-#define TYPE_QUOTE 19 // "
+#define TYPE_LEFT_PAREN 20 // (
+#define TYPE_RIGHT_PAREN 21 // )
+#define TYPE_LEFT_BRACE 22 // {
+#define TYPE_RIGHT_BRACE 23 // }
+#define TYPE_COMMA 24 // ,
+#define TYPE_SEMI 25 // ;
+#define TYPE_QUOTE 26 // "
 //Operators
-#define TYPE_ADD 10 // +
-#define TYPE_SUB 11 // -
-#define TYPE_AND 12 // &
-#define TYPE_OR 13 // |
-#define TYPE_NEG 26 // ~
-#define TYPE_ASSIGN 14 //
-#define TYPE_EQUAL 15 //=. I haven't decided whether this should be a production of two tokens, or directly handled as one.
+#define TYPE_ADD 40 // +
+#define TYPE_SUB 41 // -
+#define TYPE_AND 42 // &
+#define TYPE_OR 43 // |
+#define TYPE_NEG 44 // ~
+#define TYPE_ASSIGN 45 // =
+//Conditions
+#define TYPE_CD_EQUAL 60 // ==. I haven't decided whether this should be a production of two tokens, or directly handled as one.
+#define TYPE_CD_LESS 61 // <
+#define TYPE_CD_GREATER 62 // >
+#define TYPE_CD_NOT_EQUAL 63 // !=
+#define TYPE_CD_LESS_OR_EQUAL 64 // <=
+#define TYPE_CD_GREATER_OR_EQUAL 65 // >=
 //Keywords and identifiers that we can cheat as keywords
-#define TYPE_KW_INT 16 // int keyword
-#define TYPE_KW_SHORT 17 // short keyword
-#define TYPE_KW_VOID 18 // void keyword
-#define TYPE_KW_RETURN 20 // return keyword
-#define TYPE_KW_IF 21 // if keyword
-#define TYPE_KW_ELSE 22 // else keyword ("else if" is two tokens)
-#define TYPE_KW_MAIN 23 //"main" pseudokeyword. It's technically an identifier, but for our purposes it can be one.
-#define TYPE_KW_SCANF 24 //"scanf" pseudokeyword. Inputs an integer
-#define TYPE_KW_PRINTF 25 //"printf" pseudokeyword. Outputs either a string or an integer
-#define TYPE_KW_WHILE 26 // while loops
+#define TYPE_KW_INT 80 // int keyword
+#define TYPE_KW_SHORT 81 // short keyword
+#define TYPE_KW_VOID 82 // void keyword
+#define TYPE_KW_RETURN 83 // return keyword
+#define TYPE_KW_IF 84 // if keyword
+#define TYPE_KW_ELSE 85 // else keyword ("else if" is two tokens)
+#define TYPE_KW_MAIN 86 //"main" pseudokeyword. It's technically an identifier, but for our purposes it can be one.
+#define TYPE_KW_SCANF 87 //"scanf" pseudokeyword. Inputs an integer
+#define TYPE_KW_PRINTF 89 //"printf" pseudokeyword. Outputs either a string or an integer
+#define TYPE_KW_WHILE 90 // while loops
 
 void tokenInit(struct token * self);
 
