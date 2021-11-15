@@ -36,7 +36,7 @@ void pepProgramTree(struct program * root) {
 	}
 }
 
-void pepDeclaration(struct declaration * decl) {
+void pepDeclaration(struct declaration * decl) { 
 	printf(";Declaration\n");
 	switch (decl->declarationType) {
         // write tag and go into main block
@@ -171,7 +171,6 @@ void printVars(struct varList * vars) {
 	for (int i = 0; i < vars->size; i++)
 	{
 		printf("%s\n", vars->varList[i]);
-		printf("%d", i);
 	}
 }
 
