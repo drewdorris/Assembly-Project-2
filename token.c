@@ -12,7 +12,6 @@ void tokenInit(struct token * self) {
 }
 
 void tokenize(char *argv, int size) {
-
 	for (int i = 0; i < size; i++) {
 		switch (argv[i]) {
 
@@ -158,6 +157,20 @@ void tokenize(char *argv, int size) {
 
 			case '"':
 			{
+				int index = findIndexOfNextChar(argv,i,size,'"');
+				if (index != -1) {
+                    printf("First %i, second %i ", i, index);
+                    char stringparse[index - i];
+                    memcpy(stringparse, &argv[i], index - i);
+                    stringparse[index - 1] = '\0';
+					struct token Token;
+                    strcpy(Token.payload, stringparse); // seg fault here
+                    Token.type = TYPE_STRING;
+                    pushToken(Token);
+
+                    i = index;
+                    break;
+				}
 				//TODO concat from first double quote till second and store as string
 				break;
 			}
@@ -173,7 +186,7 @@ void tokenize(char *argv, int size) {
 //Getter for array of tokens
 //https://stackoverflow.com/questions/9914122/getting-an-array-from-another-file-in-c/9914238
 
-void  get_token_array(int which, struct token **buffer) {
+void get_token_array(int which, struct token **buffer) {
 	if(which == 1) *buffer = tokens;
 }
 
@@ -258,6 +271,14 @@ int tryForString(char * buffer, int position, int size, char * target) {
 		if (buffer[position+i] != target[i]) return 0;
 	}
 	return 1;
+}
+
+int findIndexOfNextChar(char * buffer, int position, int size, char target) {
+	while (position < size) {
+		position = position + 1;
+		if (buffer[position] == target) return position;
+	}
+	return -1;
 }
 
 void pushToken(struct token tok) {
