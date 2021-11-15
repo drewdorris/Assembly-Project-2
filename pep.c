@@ -58,7 +58,7 @@ void pepDeclaration(struct declaration * decl) {
 			// additionally, using malloc without free will give a new allocation to the tempString pointer without removing
 			//	the previous allocation (who's pointer is stored in the vars varList)
 			tempString = (char *)malloc(sizeof(char) * 20);
-			// insert a formatted string into teh new allocation
+			// insert a formatted string into the new allocation
 			sprintf(tempString, "%s:\t.WORD\tx00\n", decl->identifier);
 			// add pointer to list
 			addVar(&vars, tempString);
@@ -119,32 +119,36 @@ void pepStatement(struct statement * stmt) {
 	}
 }
 
-//TODO commenting
-
+// Function: Print out an expression struct in pep9 syntax
 void pepExpression(struct expression * expr) {
 		switch (expr->leftType) {
 		case EXPR_VAL_NUMBER:
 			{
+				// load left hand expr into accumulator
 				int * val = (int *) expr->left;
-
 				printf("\tLDWA 0x%x,i",*val);
 			}
 			break;
 		case EXPR_VAL_STRING:
-			// need memory realloc here, mine wasn't working
+			// Add 30 to the length of the string (length of string with empty expr string) for n characters and allocate memory
+			// additionally, using malloc without free will give a new allocation to the tempString pointer without removing
+			//	the previous allocation (who's pointer is stored in the vars varList)
 			tempString = (char *)malloc(sizeof(char) * (30 + strlen((char *)expr->left)));
+			// insert a formatted string into the new allocation
 			sprintf(tempString, "msg%d:\t.ASCII\t\"%s\\x00\"\n", msgCount++, (char *)expr->left);
-			//printf("%s", tempString);
+			// add pointer to list
 			addVar(&vars, tempString);
 			break;
 
 		case EXPR_VAL_EXPRESSION:
+			// call nested expression
 			pepExpression(expr->left);
 			break;
 		default:
 			error("invalid left expression");
 			break;
 	}
+	// check for operator type and print 
 	switch (expr->operator) {
 		case EXPR_OP_ADD:
 			printf("\tADDA");
@@ -170,8 +174,8 @@ void pepExpression(struct expression * expr) {
 	switch (expr->rightType) {
 		case EXPR_VAL_NUMBER:
 			{
+				// print value t ouse in operation
 				int * val = (int *) expr->left;
-
 				printf("\ti,%x\n",*val);
 			}
 			break;
@@ -191,6 +195,7 @@ void pepExpression(struct expression * expr) {
 	printf("\n");
 }
 
+// print all the strings stored in varList from pointers
 void printVars(struct varList * vars) {
 	printf(";Variables/Memory\nSTOP\n");
 	for (int i = 0; i < vars->size; i++)
