@@ -27,10 +27,10 @@ void tokenize(char *argv) {
                 char intStr[3];
 
                 for (int j = 0; j < 3; j++) {
-                    strcat(intStr, argv[i]);
+                    strcat(intStr, (char *) &argv[i]);
                 }
 
-                while (strcmp("int",intStr) != 0) {
+                while (strcmp("int", intStr) != 0) {
                     isInt = 1;
                 }
 
