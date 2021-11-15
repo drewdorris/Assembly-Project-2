@@ -66,5 +66,10 @@ char * tokenTypeString(int typeId);
 //return true if a given string is ahead
 int tryForString(char * buffer, int position, int size, char * target);
 
+//push token to array
+void pushToken(struct token tok);
+//push token type (no payload)
+void pushTokenType(int type);
+
 #endif
 

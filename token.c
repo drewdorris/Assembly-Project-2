@@ -24,17 +24,12 @@ void tokenize(char *argv, int size) {
             case 'i': 
             {
 				if (tryForString(argv,i,size,"int")) {
-					struct token token;
-                    token.type = TYPE_KW_INT;
-					tokens[tokencount] = token;
-                    tokencount++;
+					pushTokenType(TYPE_KW_INT);
                     i = i + 2;
                     break;
 				} else if (tryForString(argv,i,size,"if")) {
 					struct token token;
-					token.type = TYPE_KW_IF;
-					tokens[tokencount] = token;
-                    tokencount++;
+					pushTokenType(TYPE_KW_IF);
 					i = i + 1;
 					break;
 				}
@@ -43,10 +38,7 @@ void tokenize(char *argv, int size) {
                 case 'm':
                 {
 					if (tryForString(argv,i,size,"main")) {
-						struct token token;
-						token.type = TYPE_KW_MAIN;
-						tokens[tokencount] = token;
-                    	tokencount++;
+						pushTokenType(TYPE_KW_MAIN);
 						i = i + 3;
 						break;
 					}
@@ -54,91 +46,62 @@ void tokenize(char *argv, int size) {
 
                 case ',':
                 {
-                    struct token token;
-                    token.type = TYPE_COMMA;
-                    tokens[tokencount] = token;
-                    tokencount++;
+					pushTokenType(TYPE_COMMA);
                     break;
                 }
 
                 case ';':
                 {
                     struct token token;
-                    token.type = TYPE_SEMI;
-                    tokens[tokencount] = token;
-                    tokencount++;
+                    pushTokenType(TYPE_SEMI);
                     break;
                 }
 
                 case '+':
                 {
-                    struct token token;
-                    token.type = TYPE_ADD;
-                    tokens[tokencount] = token;
-                    tokencount++;
+                    pushTokenType(TYPE_ADD);
                     break;
                 }
 
                 case '-':
                 {
-                    struct token token;
-                    token.type = TYPE_SUB;
-                    tokens[tokencount] = token;
-                    tokencount++;
+                  	pushTokenType(TYPE_SUB);
                     break;
                 }
 
                 case '&':
                 {
-                    struct token token;
-                    token.type = TYPE_AND;
-                    tokens[tokencount] = token;
-                    tokencount++;
+                    pushTokenType(TYPE_AND);
                     break;
                 }
 
                 case '|':
                 {
-                    struct token token;
-                    token.type = TYPE_OR;
-                    tokens[tokencount] = token;
-                    tokencount++;
+                    pushTokenType(TYPE_OR);
                     break;
                 }
 
                 case '(':
                 {
-                    struct token token;
-                    token.type = TYPE_LEFT_PAREN;
-                    tokens[tokencount] = token;
-                    tokencount++;
+                    pushTokenType(TYPE_LEFT_PAREN);
                     break;
                 }
 
                 case ')':
                 {
-                    struct token token;
-                    token.type = TYPE_RIGHT_PAREN;
-                    tokens[tokencount] = token;
-                    tokencount++;
+                    pushTokenType(TYPE_RIGHT_PAREN);
                     break;
                 }
 
                 case '{':
                 {
-                    struct token token;
-                    token.type = TYPE_LEFT_BRACE;
-                    tokens[tokencount] = token;
-                    tokencount++;
+                    pushTokenType(TYPE_LEFT_BRACE);
                     break;
                 }
 
                 case '}':
                 {
-                    struct token token;
-                    token.type = TYPE_RIGHT_BRACE;
-                    tokens[tokencount] = token;
-                    tokencount++;
+                    pushTokenType(TYPE_RIGHT_BRACE);
                     break;
                 }
 
@@ -259,5 +222,17 @@ void tokenize(char *argv, int size) {
 			if (buffer[position+i] != target[i]) return 0;
 		}
 		return 1;
+	}
+
+	void pushToken(struct token tok) {
+		tokens[tokencount] = tok;
+		tokencount++;
+	}
+
+	void pushTokenType(int type) {
+		struct token token;
+		token.type = type;
+		tokens[tokencount] = token;
+		tokencount++;
 	}
 
