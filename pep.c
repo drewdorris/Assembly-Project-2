@@ -27,8 +27,8 @@ void addVar(struct varList * self, char * newVar) {
 
 // Function: begin printing Pep9 conversion.
 void pepProgramTree(struct program * root) {
-	tempString = (char *)malloc(sizeof(char *) * 50);
-	int tempSize = 50;
+	tempString = (char *)malloc(sizeof(char *) * 100);
+	int tempSize = 100;
 	varListInit(&vars);
 	printf(";C Program to Pep9 (%d declarations)\n",root->nDeclarations);
 	for (int i = 0; i < root->nDeclarations; i++) {
@@ -108,10 +108,7 @@ void pepExpression(struct expression * expr) {
 			}
 			break;
 		case EXPR_VAL_STRING:
-			if (tempSize <= (30 + strlen((char *)expr->left))) {
-				tempString = realloc(tempString, sizeof(char *) * tempSize);
-				tempSize = tempSize * 2;
-			}
+			// need memory realloc here, mine wasn't working
 			sprintf(tempString, "msg%d:\t.ASCII\t\"%s\\x00\"\n", msgCount++, (char *)expr->left);
 			addVar(&vars, tempString);
 			break;
@@ -174,6 +171,7 @@ void printVars(struct varList * vars) {
 	for (int i = 0; i < vars->size; i++)
 	{
 		printf("%s\n", vars->varList[i]);
+		printf("%d", i);
 	}
 }
 
