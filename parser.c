@@ -5,6 +5,7 @@
 #include "token.h"
 #include "pep.h"
 
+// Run a parser debug program
 void parserDebug(void) {
 	/*
 	[ int ][ main ][ ( ][ ) ][ { ]
@@ -68,14 +69,17 @@ void parserDebug(void) {
 	pepProgramTree(&prgm);
 }
 
+// Initialise state of the parser. User should set the tokenArray and tokenArrayLength fields afterward.
 void parserInit(struct parser * self) {
 	self->currentToken = 0;
 }
 
+// Returns true value if there are tokens left in the array.
 int parserHasNext(struct parser * self) {
 	return self->currentToken != self->tokenArrayLength;
 }
 
+// Advance to the next token, or emit an error at the end of the sequence.
 int parserNext(struct parser * self) {
 	if (self->currentToken == self->tokenArrayLength) {
 		parserError(self);
@@ -84,14 +88,17 @@ int parserNext(struct parser * self) {
 	return 1;
 }
 
+// Return true if the current token is of the provided type.
 int parserLookaheadIs(struct parser * self, int type) {
 	return parserLookahead(self)->type == type;
 }
-
+// Return the current token.
 struct token * parserLookahead(struct parser * self) {
 	return &self->tokenArray[self->currentToken];
 }
 
+// Consume the current token if the current token is the provided type, otherwise emit an error. After returning the parser will be on the next
+// token.
 void parserExpectOrError(struct parser * self, int type) {
 	if (parserLookaheadIs(self,type)) {
 		parserNext(self);
@@ -101,6 +108,7 @@ void parserExpectOrError(struct parser * self, int type) {
 	}
 }
 
+// Emit an error and stop.
 void parserError(struct parser * self) {
 	fprintf(stderr,"Syntax error, tokidx %d",self->currentToken);
 	exit(1);
@@ -224,7 +232,13 @@ struct declaration declaration(struct parser * self) {
 				fdecl.functionBlock = blockData;
 				return fdecl;
 		}
+	} else {
+		parserError(self);
 	}
+	//We should never get here
+	struct declaration noUse;
+	noUse.declarationType = DECL_FUNCTION;
+	return noUse;
 }
 
 //Blocks introduced { }. Contains a sequence of semicolon-seperated statements which can include declarations
@@ -238,7 +252,7 @@ struct block block(struct parser * self) {
 			struct declaration decl = declaration(self);
 			struct blockElement elem;
 			elem.type = BLCK_DECLARATION;
-			elem.element = elem.element = malloc(sizeof(struct declaration));
+			elem.element = malloc(sizeof(struct declaration));
 			*((struct declaration *)(elem.element)) = decl;
 			//add data to list
 			if (nBlockElements == 256) {
@@ -263,7 +277,7 @@ struct block block(struct parser * self) {
 
 				struct blockElement elem;
 				elem.type = BLCK_STATEMENT;
-				elem.element = elem.element = malloc(sizeof(struct statement));
+				elem.element = malloc(sizeof(struct statement));
 				*((struct statement *)(elem.element)) = stmt;
 				//add data to list
 				if (nBlockElements == 256) {
@@ -316,7 +330,7 @@ struct block block(struct parser * self) {
 
 			struct blockElement elem;
 			elem.type = BLCK_STATEMENT;
-			elem.element = elem.element = malloc(sizeof(struct statement));
+			elem.element = malloc(sizeof(struct statement));
 			*((struct statement *)(elem.element)) = stmt;
 			//add data to list
 			if (nBlockElements == 256) {
@@ -342,7 +356,7 @@ struct block block(struct parser * self) {
 
 			struct blockElement elem;
 			elem.type = BLCK_STATEMENT;
-			elem.element = elem.element = malloc(sizeof(struct statement));
+			elem.element = malloc(sizeof(struct statement));
 			*((struct statement *)(elem.element)) = stmt;
 			//add data to list
 			if (nBlockElements == 256) {
@@ -492,6 +506,7 @@ struct statement printfParse(struct parser * self) {
 	return printfStmt;
 }
 
+// Print an indent.
 void printIndent(int indent) {
 	while (indent > 0) {
 		printf("  ");
@@ -499,6 +514,7 @@ void printIndent(int indent) {
 	}
 }
 
+// Print the full program tree.
 void printProgramTree(struct program * root) {
 	printf("C Program (%d declarations)\n",root->nDeclarations);
 	for (int i = 0; i < root->nDeclarations; i++) {
@@ -506,6 +522,7 @@ void printProgramTree(struct program * root) {
 	}
 }
 
+// Print a declaration.
 void printDeclaration(struct declaration * decl, int indent) {
 	printIndent(indent);
 	printf("Declaration ");
@@ -525,6 +542,7 @@ void printDeclaration(struct declaration * decl, int indent) {
 	}
 }
 
+// Print a code block.
 void printBlock(struct block * block, int indent) {
 	printIndent(indent);
 	printf("Block (%d elements)\n",block->nElements);
@@ -542,6 +560,7 @@ void printBlock(struct block * block, int indent) {
 	}
 }
 
+// Print a statement.
 void printStatement(struct statement * stmt, int indent) {
 	printIndent(indent);
 	printf("Statement ");
