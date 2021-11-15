@@ -1,6 +1,7 @@
 #include "token.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 struct token tokens[1000];
 int tokencount = 0;
@@ -13,7 +14,6 @@ void tokenInit(struct token * self) {
 void tokenize(char *argv, int size) {
 
     for (int i = 0; i < size; i++) {
-
         switch (argv[i]) {
 
             case ' ':
@@ -23,63 +23,33 @@ void tokenize(char *argv, int size) {
 
             case 'i': 
             {
-                int isInt = 0;
-                char intStr[3];
-
-                for (int j = 0; j < 3; j++) {
-                    strcat(intStr, (char *) &argv[i]);
-                }
-
-                while (strcmp("int", intStr) != 0) {
-                    isInt = 1;
-                }
-
-                if (isInt == 1) {
-                    struct token token;
+				if (tryForString(argv,i,size,"int")) {
+					struct token token;
                     token.type = TYPE_KW_INT;
+					tokens[tokencount] = token;
+                    tokencount++;
                     i = i + 2;
                     break;
-                } else {
-
-                    int isIf = 0;
-                    char ifStr[2];
-
-                    for (int j = 0; j < 2; j++) {
-                        strcat(ifStr, (char *) &argv[i]);
-                    }
-
-                    while (strcmp("if", ifStr) != 0) {
-                        isIf = 1;
-                    }
-
-                    if (isIf == 1) {
-                        struct token token;
-                        token.type = TYPE_KW_IF;
-                        i = i + 1;
-                        break;
-                    }
-                }
+				} else if (tryForString(argv,i,size,"if")) {
+					struct token token;
+					token.type = TYPE_KW_IF;
+					tokens[tokencount] = token;
+                    tokencount++;
+					i = i + 1;
+					break;
+				}
             }
 
                 case 'm':
                 {
-                    int isMain = 0;
-                    char mainStr[4];
-
-                    for (int j = 0; j < 4; j++) {
-                        strcat(mainStr, (char *) &argv[i]);
-                    }
-
-                    while (strcmp("main",mainStr) != 0) {
-                        isMain = 1;
-                    }
-
-                    if (isMain == 1){
-                        struct token token;
-                        token.type = TYPE_KW_MAIN;
-                        i = i + 3;
-                        break;
-                    }
+					if (tryForString(argv,i,size,"main")) {
+						struct token token;
+						token.type = TYPE_KW_MAIN;
+						tokens[tokencount] = token;
+                    	tokencount++;
+						i = i + 3;
+						break;
+					}
                 }
 
                 case ',':
@@ -210,9 +180,8 @@ void tokenize(char *argv, int size) {
 //Getter for array of tokens
 //https://stackoverflow.com/questions/9914122/getting-an-array-from-another-file-in-c/9914238
 
-	void  get_token_array(int which, struct token **buffer){
-	if(which == 1)
-    	*buffer = tokens;
+	void  get_token_array(int which, struct token **buffer) {
+		if(which == 1) *buffer = tokens;
 	}
 
 
@@ -244,4 +213,51 @@ void tokenize(char *argv, int size) {
         a->used = a->size = 0;
     }
     */
+   	char * tokenTypeString(int typeId) {
+	   	switch (typeId) {
+		   case TYPE_WHITESPACE: return "WHITESPACE";
+			//Valued tokens
+			case TYPE_NUMBER: return "NUMBER";
+			case TYPE_IDENTIFIER: return "IDENTIFIER";
+			case TYPE_STRING: return "STRING";
+			//Punctuations
+			case TYPE_LEFT_PAREN: return "LEFT_PAREN";
+			case TYPE_RIGHT_PAREN: return "RIGHT_PAREN";
+			case TYPE_LEFT_BRACE: return "LEFT_BRACE";
+			case TYPE_RIGHT_BRACE: return "RIGHT_BRACE";
+			case TYPE_COMMA: return "COMMA";
+			case TYPE_SEMI: return "SEMI";
+			case TYPE_QUOTE: return "QUOTE";
+			//Operators
+			case TYPE_ADD: return "ADD";
+			case TYPE_SUB: return "SUB";
+			case TYPE_AND: return "AND";
+			case TYPE_OR: return "OR";
+			case TYPE_NEG: return "NEG";
+			case TYPE_ASSIGN: return "ASSIGN";
+			case TYPE_EQUAL: return "EQUAL";
+			//Keywords and identifiers that we can cheat as keywords
+			case TYPE_KW_INT: return "KW_INT";
+			case TYPE_KW_SHORT: return "KW_SHORT";
+			case TYPE_KW_VOID: return "KW_VOID";
+			case TYPE_KW_RETURN: return "KW_RETURN";
+			case TYPE_KW_IF: return "KW_IF";
+			case TYPE_KW_ELSE: return "KW_ELSE";
+			case TYPE_KW_MAIN: return "KW_MAIN";
+			case TYPE_KW_SCANF: return "KW_SCANF";
+			case TYPE_KW_PRINTF: return "KW_PRINTF";
+			//case TYPE_KW_WHILE: return "KW_WHILE"; has duplicated ID. Fix is in another branch
+			default: return "UNKNOWN";
+		}
+
+   	}
+
+	int tryForString(char * buffer, int position, int size, char * target) {
+		int targetLen = strlen(target);
+		for (int i = 0; i < targetLen; i++) {
+			if (position+1 >= size) return 0;
+			if (buffer[position+i] != target[i]) return 0;
+		}
+		return 1;
+	}
 

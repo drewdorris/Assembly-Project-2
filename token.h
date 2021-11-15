@@ -59,7 +59,12 @@ void tokenInit(struct token * self);
 
 void tokenize(char *argv, int size);
 
-void  get_token_array(int which,struct token **buffer);
+void get_token_array(int which,struct token **buffer);
+
+char * tokenTypeString(int typeId);
+
+//return true if a given string is ahead
+int tryForString(char * buffer, int position, int size, char * target);
 
 #endif
 

@@ -58,7 +58,8 @@ int main(int argc, char *argv[]) {
 		// then iterate
 		current = current + 1;
 	}
-	printf("\nTotal characters: %i", current - 1);
+	all[current] = '\0'; //null insert
+	printf("\nTotal characters: %i", current);
 	printf("\nCode: %s\n", all);
 	
 	// array is now set up, future expansion here
@@ -66,8 +67,8 @@ int main(int argc, char *argv[]) {
 	tokenize(all, (current-1));
 	struct token *tokenarray;
 	get_token_array(1, &tokenarray);
-	for (int i = 0; i < 1000; i++ ){
-	printf("%i", tokenarray[i].type);
+	for (int i = 0; i < current-1; i++ ){
+		printf("%s\n", tokenTypeString(tokenarray[i].type));
 	}
 	
 	
