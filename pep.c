@@ -22,13 +22,13 @@ void addVar(struct varList * self, char * newVar) {
         self->varList = (char **)realloc(self->varList, sizeof(char *) * self->allocSize * 2);
         self->allocSize = self->allocSize * 2;
     }
+//char * cpyVar = mall
+	//self->varList[self->size++]; 
     self->varList[self->size++] = newVar;
 };
 
 // Function: begin printing Pep9 conversion.
 void pepProgramTree(struct program * root) {
-	tempString = (char *)malloc(sizeof(char *) * 100);
-	int tempSize = 100;
 	varListInit(&vars);
 	printf(";C Program to Pep9 (%d declarations)\n",root->nDeclarations);
 	for (int i = 0; i < root->nDeclarations; i++) {
@@ -47,7 +47,8 @@ void pepDeclaration(struct declaration * decl) {
         // for variable decl. outside of main
         case DECL_VARIABLE:
 			// no need to check for allocation size as the below sprintf function can only have a max size of 16 chars
-			sprintf(tempString, "%s:\t.WORD\n", decl->identifier);
+			tempString = (char *)malloc(sizeof(char) * 20);
+			sprintf(tempString, "%s:\t.WORD\tx00\n", decl->identifier);
 			addVar(&vars, tempString);
 			if (decl->init!=NULL) {
 				pepExpression(decl->init);
@@ -86,7 +87,7 @@ void pepStatement(struct statement * stmt) {
 			break;
 		case STMT_RETURN:
 			printVars(&vars);
-			printf("STOP\n.end");
+			printf(".end");
 			break;
 		case STMT_PRINTF_CALL:
 			printf("\tSTRO msg%d,d\n", msgCount);
@@ -99,7 +100,7 @@ void pepStatement(struct statement * stmt) {
 }
 
 void pepExpression(struct expression * expr) {
-	switch (expr->leftType) {
+		switch (expr->leftType) {
 		case EXPR_VAL_NUMBER:
 			{
 				int * val = (int *) expr->left;
@@ -109,7 +110,9 @@ void pepExpression(struct expression * expr) {
 			break;
 		case EXPR_VAL_STRING:
 			// need memory realloc here, mine wasn't working
+			tempString = (char *)malloc(sizeof(char) * (30 + strlen((char *)expr->left)));
 			sprintf(tempString, "msg%d:\t.ASCII\t\"%s\\x00\"\n", msgCount++, (char *)expr->left);
+			//printf("%s", tempString);
 			addVar(&vars, tempString);
 			break;
 
@@ -167,10 +170,11 @@ void pepExpression(struct expression * expr) {
 }
 
 void printVars(struct varList * vars) {
-	printf("STOP\n");
+	printf(";Variables/Memory\nSTOP\n");
 	for (int i = 0; i < vars->size; i++)
 	{
 		printf("%s\n", vars->varList[i]);
+		free(vars->varList[i]);
 	}
 }
 
