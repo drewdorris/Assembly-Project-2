@@ -81,10 +81,47 @@ void tokenize(char *argv, int size) {
 				break;
 			}
 
-            case '=':
-            {
-                pushTokenType(TYPE_CD_EQUAL);
-            }
+			case '=':
+			{
+				if (tryForString(argv,i,size,"==")) {
+					pushTokenType(TYPE_CD_EQUAL);
+					i = i + 1;
+					break;
+				}
+				pushTokenType(TYPE_ASSIGN);
+				break;
+			}
+
+			case '<':
+			{
+				if (tryForString(argv,i,size,"<=")) {
+					pushTokenType(TYPE_CD_LESS_OR_EQUAL);
+					i = i + 1;
+					break;
+				}
+				pushTokenType(TYPE_CD_LESS);
+				break;
+			}
+
+			case '>':
+			{
+				if (tryForString(argv,i,size,">=")) {
+					pushTokenType(TYPE_CD_GREATER_OR_EQUAL);
+					i = i + 1;
+					break;
+				}
+				pushTokenType(TYPE_CD_GREATER);
+				break;
+			}
+
+			case '!':
+			{
+				if (tryForString(argv,i,size,"!=")) {
+					pushTokenType(TYPE_CD_NOT_EQUAL);
+					i = i + 1;
+					break;
+				}
+			}
 
 			case '(':
 			{
@@ -115,7 +152,7 @@ void tokenize(char *argv, int size) {
 				if (tryForString(argv,i,size,"printf")) {
 					pushTokenType(TYPE_KW_PRINTF);
 					i = i + 5;
-				    break;
+					break;
 				}
 			}
 
@@ -191,7 +228,13 @@ char * tokenTypeString(int typeId) {
 		case TYPE_OR: return "OR";
 		case TYPE_NEG: return "NEG";
 		case TYPE_ASSIGN: return "ASSIGN";
-		case TYPE_CD_EQUAL: return "EQUAL";
+		//Conditions
+		case TYPE_CD_EQUAL: return "CD_EQUAL";
+		case TYPE_CD_LESS: return "CD_LESS";
+		case TYPE_CD_GREATER: return "CD_GREATER";
+		case TYPE_CD_NOT_EQUAL: return "CD_NOT_EQUAL";
+		case TYPE_CD_LESS_OR_EQUAL: return "CD_LESS_OR_EQUAL";
+		case TYPE_CD_GREATER_OR_EQUAL: return "CD_GREATER_OR_EQUAL";
 		//Keywords and identifiers that we can cheat as keywords
 		case TYPE_KW_INT: return "KW_INT";
 		case TYPE_KW_SHORT: return "KW_SHORT";
