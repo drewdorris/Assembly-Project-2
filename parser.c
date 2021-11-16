@@ -103,7 +103,7 @@ void parserExpectOrError(struct parser * self, int type) {
 	if (parserLookaheadIs(self,type)) {
 		parserNext(self);
 	} else {
-		fprintf(stderr,"Syntax error, needed toktype %d, tokidx %d", type, self->currentToken);
+		fprintf(stderr,"Syntax error, needed toktype %s, tokidx %d", tokenTypeString(type), self->currentToken);
 		exit(1);
 	}
 }
@@ -321,6 +321,7 @@ struct block block(struct parser * self) {
 				parserError(self);
 			}
 			char * scanfTarget = (char *) parserLookahead(self)->payload;
+			parserNext(self);
 			parserExpectOrError(self,TYPE_RIGHT_PAREN);
 			parserExpectOrError(self,TYPE_SEMI);
 

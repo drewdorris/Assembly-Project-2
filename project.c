@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 	struct token *tokenarray;
 	get_token_array(1, &tokenarray);
 	for (int i = 0; i < getTokenCount(); i++ ){
-		printf("%s\n", tokenTypeString(tokenarray[i].type));
+		printf("%d %s\n", i, tokenTypeString(tokenarray[i].type));
 	}
 	
 	//Invoke parser

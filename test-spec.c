@@ -9,7 +9,7 @@ int main() {
 	int x;
 	int y = 42;
 
-	scanf("%d",x);
+	scanf("%d",&x);
 	printf("%d",x);
 
 	x = y + x;
