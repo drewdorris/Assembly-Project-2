@@ -613,6 +613,9 @@ void printExpression(struct expression * expr) {
 				printf("%d",*val);
 			}
 			break;
+		case EXPR_VAL_IDENTIFIER:
+			printf("%s",(char *) expr->left);
+			break;
 		case EXPR_VAL_STRING:
 			printf("\"%s\"",(char *) expr->left);
 			break;
@@ -620,29 +623,29 @@ void printExpression(struct expression * expr) {
 			printExpression(expr->left);
 			break;
 		default:
-			printf(" <unknown>");
+			printf(" <unknown %d>",expr->leftType);
 	}
 	switch (expr->operator) {
 		case EXPR_OP_ADD:
-			printf(" ADD");
+			printf(" ADD ");
 			break;
 		case EXPR_OP_SUB:
-			printf(" SUB");
+			printf(" SUB ");
 			break;
 		case EXPR_OP_NEG:
 			printf(" NEG");
 			break;
 		case EXPR_OP_AND:
-			printf(" AND");
+			printf(" AND ");
 			break;
 		case EXPR_OP_OR:
-			printf(" OR");
+			printf(" OR ");
 			break;
 		case EXPR_OP_NOP:
 			printf(" <not used>");
 			break;
 		default:
-			printf(" <unknown>");
+			printf(" <unknown %d>",expr->operator);
 			break;
 	}
 	switch (expr->rightType) {
@@ -651,6 +654,9 @@ void printExpression(struct expression * expr) {
 				int * val = (int *) expr->right;
 				printf("%d",*val);
 			}
+			break;
+		case EXPR_VAL_IDENTIFIER:
+			printf("%s",(char *) expr->right);
 			break;
 		case EXPR_VAL_STRING:
 			printf("\"%s\"",(char *) expr->right);
@@ -662,7 +668,7 @@ void printExpression(struct expression * expr) {
 			printf(" <not used>");
 			break;
 		default:
-			printf(" <unknown>");
+			printf(" <unknown %d>",expr->rightType);
 			break;
 	}
 	printf(")");
