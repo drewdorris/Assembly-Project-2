@@ -13,7 +13,7 @@ void tokenInit(struct token * self) {
 }
 
 void tokenize(char *argv, int size) {
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i <= size; i++) {
 		switch (argv[i]) {
 
 			case ' ':
