@@ -409,7 +409,7 @@ char * tokenTypeString(int typeId) {
 int tryForString(char * buffer, int position, int size, char * target) {
 	int targetLen = strlen(target);
 	for (int i = 0; i < targetLen; i++) {
-		if (position+1 >= size) return 0;
+		if (position+1 >= size) return 0; //would bounds the array so cannot succeed in any case
 		if (buffer[position+i] != target[i]) return 0;
 	}
 	return 1;

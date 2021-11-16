@@ -61,14 +61,15 @@ struct token {
 #define TYPE_KW_PRINTF 89 //"printf" pseudokeyword. Outputs either a string or an integer
 #define TYPE_KW_WHILE 90 // while loops
 
+//initialise token state with default values
 void tokenInit(struct token * self);
-
+//get how many tokens are in the tokeniser
 int getTokenCount();
-
+//tokenize the input string with specified length
 void tokenize(char *argv, int size);
-
+//...?
 void get_token_array(int which,struct token **buffer);
-
+//return human-readable typename for token type identifier
 char * tokenTypeString(int typeId);
 
 //return true if a given string is ahead
