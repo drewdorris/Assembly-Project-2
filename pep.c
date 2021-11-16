@@ -108,13 +108,46 @@ void pepStatement(struct statement * stmt) {
 			printf(".end");
 			break;
 		case STMT_PRINTF_CALL:
-			// make a STRO statment
-			printf("\tSTRO msg%d,d\n", msgCount);
-			// call pepExpression to store a string literal in memory
-			pepExpression(&stmt->rhs);
+			pepPrintExpression(&stmt->rhs);
 			break;
 		default:
 			error("invalid statement type");
+			break;
+	}
+}
+
+void pepPrintExpression(struct expression * expr) {
+	switch (expr->leftType) {
+	case EXPR_VAL_STRING:
+		// make a STRO statment for literal
+		printf("\tSTRO msg%d,d\n", msgCount);
+
+		// Add 30 to the length of the string (length of string with empty expr string) for n characters and allocate memory.
+		// additionally, using malloc without free will give a new allocation to the tempString pointer without removing
+		//	the previous allocation (who's pointer is stored in the vars varList)
+		tempString = (char *)malloc(sizeof(char) * (30 + strlen((char *)expr->left)));
+		// insert a formatted string into the new allocation
+		sprintf(tempString, "msg%d:\t.ASCII\t\"%s\\x00\"\n", msgCount++, (char *)expr->left);
+		// add pointer to list
+		addVar(&vars, tempString);
+		break;
+	case EXPR_VAL_IDENTIFIER:
+		// make a DECO statment using identifier
+		printf("\tDECO %s,d\n", (char *)expr->left);
+		break;
+	default:
+		error("invalid left expression for print");
+		break;
+	}
+	
+	switch (expr->rightType) {
+		case EXPR_VAL_EXPRESSION:
+			pepPrintExpression(expr->right);
+			break;
+		case EXPR_VAL_UNARY:
+			break;
+		default:
+		error("invalid right expression for print");
 			break;
 	}
 }
@@ -130,14 +163,7 @@ void pepExpression(struct expression * expr) {
 			}
 			break;
 		case EXPR_VAL_STRING:
-			// Add 30 to the length of the string (length of string with empty expr string) for n characters and allocate memory
-			// additionally, using malloc without free will give a new allocation to the tempString pointer without removing
-			//	the previous allocation (who's pointer is stored in the vars varList)
-			tempString = (char *)malloc(sizeof(char) * (30 + strlen((char *)expr->left)));
-			// insert a formatted string into the new allocation
-			sprintf(tempString, "msg%d:\t.ASCII\t\"%s\\x00\"\n", msgCount++, (char *)expr->left);
-			// add pointer to list
-			addVar(&vars, tempString);
+			error("attempted to pass a string payload into regualr pepExpression");
 			break;
 		case EXPR_VAL_IDENTIFIER:
 			printf("\tLDWA %s,d", (char *)expr->left);
@@ -176,7 +202,7 @@ void pepExpression(struct expression * expr) {
 	switch (expr->rightType) {
 		case EXPR_VAL_NUMBER:
 			{
-				// print value t ouse in operation
+				// print value after operation
 				int * val = (int *) expr->left;
 				printf("\ti,%x\n",*val);
 			}

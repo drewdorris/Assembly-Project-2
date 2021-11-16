@@ -22,6 +22,8 @@ void pepBlock(struct block * block);
 
 void pepStatement(struct statement * stmt);
 
+void pepPrintExpression(struct expression * expr);
+
 void pepExpression(struct expression * expr);
 
 void printWords(struct varList * vars);
