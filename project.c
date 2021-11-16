@@ -2,7 +2,6 @@
 #include "token.h"
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 #define MAX_FILE_LENGTH 2000 // maximum amnt of characters in the file
 
@@ -25,7 +24,7 @@ int main(int argc, char *argv[]) {
 	int current = 0;
 	// https://stackoverflow.com/questions/15883568/reading-from-stdin
 	// iterate each char in input
-	while(read(STDIN_FILENO, &ch, 1) > 0)
+	while(fread(&ch, sizeof(char), 1, stdin) > 0)
 	{
 		// if we're ignoring this line and not on a new line, continue ignoring it
 		if (ignoreLine == 1 && ch != '\n') {
