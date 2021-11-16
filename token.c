@@ -257,9 +257,9 @@ void tokenize(char *argv, int size) {
 			{
 				int index = findIndexOfNextChar(argv,i,size,'"');
 				if (index != -1) {
-					char * stringparse = malloc(sizeof(char) * (index - i + 1)); // array for substring. add 1 for null terminator
-					memcpy(stringparse, &argv[i], index - i + 1); // substrings argv and sets as stringparse
-					stringparse[index - i] = '\0'; // add null terminator to end of 
+					char * stringparse = malloc(sizeof(char) * (index - i - 1)); // array for substring. add 1 for null terminator and subtract 2 for no quotes
+					memcpy(stringparse, &argv[i + 1], index - i - 1); // substrings argv and sets as stringparse
+					stringparse[index - i - 2] = '\0'; // add null terminator to end of 
 
 					// make Token and push it
 					struct token Token;
