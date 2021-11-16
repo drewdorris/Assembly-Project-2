@@ -17,19 +17,16 @@ int main() {
 
 	printf("%d",x);
 
-	{
-		short a = 1;
-		short b = 2;
-		short c = a | b;
-		printf("%d",c);
-	}
+	short a = 1;
+	short b = 2;
+	short c = a | b;
+	printf("%d",c);
 
-	{
-		gVar1 = 41;
-		gVar1 = gVar2 - gVar1;
-		gVar1 = ~gVar1;
-		printf("%d",gVar1);
-	}
+	gVar1 = 41;
+	gVar1 = gVar2 - gVar1;
+	gVar1 = ~gVar1;
+	printf("%d",gVar1);
+
 	printf("Thats all folks\n");
 	return 0;
 }
