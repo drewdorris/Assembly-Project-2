@@ -138,7 +138,7 @@ void pepPrintExpression(struct expression * expr) {
 		break;
 	case EXPR_VAL_IDENTIFIER:
 		// make a DECO statment using identifier
-		printf("\tDECO %s,d\t\t; output decimal value to terminal\t\t; \n", (char *)expr->left);
+		printf("\tDECO %s,d\t\t; output decimal value to terminal\n", (char *)expr->left);
 		break;
 	default:
 		error("invalid left expression for print");
