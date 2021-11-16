@@ -5,15 +5,15 @@ struct token {
 	void * payload; // The payload of that token, if one need exist, such as the string of the identifier or a pointer to int for a constant number. Null otherwise
 };
 
-    /*
-    * Dynamically sizing array
-    * https://stackoverflow.com/questions/3536153/c-dynamically-growing-array
-    */
+	/*
+	* Dynamically sizing array
+	* https://stackoverflow.com/questions/3536153/c-dynamically-growing-array
+	*/
 
 //typedef struct {
-//    int *array;
-//    size_t used;
-//    size_t size;
+//	int *array;
+//	size_t used;
+//	size_t size;
 //} Array;
 
 

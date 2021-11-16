@@ -159,19 +159,19 @@ void tokenize(char *argv, int size) {
 			{
 				int index = findIndexOfNextChar(argv,i,size,'"');
 				if (index != -1) {
-                    printf("First %i, second %i ", i, index);
-                    char * stringparse = malloc(sizeof(char) * (index - i));
-                    memcpy(stringparse, &argv[i], index - i);
-                    stringparse[index - 1] = '\0';
-					struct token Token;
-                    Token.payload = stringparse;
-                    Token.type = TYPE_STRING;
-                    pushToken(Token);
+					char * stringparse = malloc(sizeof(char) * (index - i + 1)); // array for substring. add 1 for null terminator
+					memcpy(stringparse, &argv[i], index - i + 1); // substrings argv and sets as stringparse
+					stringparse[index - i] = '\0'; // add null terminator to end of string
 
-                    i = index;
-                    break;
+					// make Token and push it
+					struct token Token;
+					Token.payload = stringparse;
+					Token.type = TYPE_STRING;
+					pushToken(Token);
+
+					i = index - 1;
+					break;
 				}
-				//TODO concat from first double quote till second and store as string
 				break;
 			}
 
@@ -274,9 +274,9 @@ int tryForString(char * buffer, int position, int size, char * target) {
 }
 
 int findIndexOfNextChar(char * buffer, int position, int size, char target) {
-	while (position < size) {
+	while ((position + 1) < size) {
 		position = position + 1;
-		if (buffer[position] == target) return position;
+		if (buffer[position] == target) return (position + 1);
 	}
 	return -1;
 }
