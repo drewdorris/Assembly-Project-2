@@ -571,7 +571,7 @@ void printBlock(struct block * block, int indent) {
 				printStatement(elem->element,indent+1);
 				break;
 		}
-		printf("\n");
+		//printf("\n");
 	}
 }
 
@@ -602,6 +602,7 @@ void printStatement(struct statement * stmt, int indent) {
 			printf("unknown");
 			break;
 	}
+	printf("\n");
 }
 
 void printExpression(struct expression * expr) {
