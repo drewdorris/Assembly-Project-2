@@ -73,6 +73,10 @@ char * tokenTypeString(int typeId);
 int tryForString(char * buffer, int position, int size, char * target);
 //return index of given char; -1 if not found
 int findIndexOfNextChar(char * buffer, int position, int size, char target);
+// return index of next char after position that is not a-zA-Z0-9_; -1 if not found
+int findIndexOfNextNonAlphanumericChar(char * buffer, int position, int size);
+// return index of next char after position that is not 0-9; -1 if not found
+int findIndexOfNextNonNumericChar(char * buffer, int position, int size);
 
 //push token to array
 void pushToken(struct token tok);

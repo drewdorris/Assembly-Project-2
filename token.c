@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 struct token tokens[1000];
 int tokencount = 0;
@@ -39,6 +40,65 @@ void tokenize(char *argv, int size) {
 				if (tryForString(argv,i,size,"main")) {
 					pushTokenType(TYPE_KW_MAIN);
 					i = i + 3;
+					break;
+				}
+			}
+
+			case 'e':
+			{
+				if (tryForString(argv,i,size,"else")) {
+					pushTokenType(TYPE_KW_ELSE);
+					i = i + 3;
+					break;
+				}
+			}
+
+			case 'r':
+			{
+				if (tryForString(argv,i,size,"return")) {
+					pushTokenType(TYPE_KW_RETURN);
+					i = i + 5;
+					break;
+				}
+			}
+
+			case 'v':
+			{
+				if (tryForString(argv,i,size,"void")) {
+					pushTokenType(TYPE_KW_VOID);
+					i = i + 3;
+					break;
+				}
+			}
+
+			case 's':
+			{
+				if (tryForString(argv,i,size,"scanf")) {
+					pushTokenType(TYPE_KW_SCANF);
+					i = i + 4;
+					break;
+				}
+				if (tryForString(argv,i,size,"short")) {
+					pushTokenType(TYPE_KW_SHORT);
+					i = i + 4;
+					break;
+				}
+			}
+
+			case 'w':
+			{
+				if (tryForString(argv,i,size,"while")) {
+					pushTokenType(TYPE_KW_WHILE);
+					i = i + 4;
+					break;
+				}
+			}
+
+			case 'p':
+			{
+				if (tryForString(argv,i,size,"printf")) {
+					pushTokenType(TYPE_KW_PRINTF);
+					i = i + 5;
 					break;
 				}
 			}
@@ -146,22 +206,13 @@ void tokenize(char *argv, int size) {
 				break;
 			}
 
-			case 'p':
-			{
-				if (tryForString(argv,i,size,"printf")) {
-					pushTokenType(TYPE_KW_PRINTF);
-					i = i + 5;
-					break;
-				}
-			}
-
 			case '"':
 			{
 				int index = findIndexOfNextChar(argv,i,size,'"');
 				if (index != -1) {
 					char * stringparse = malloc(sizeof(char) * (index - i + 1)); // array for substring. add 1 for null terminator
 					memcpy(stringparse, &argv[i], index - i + 1); // substrings argv and sets as stringparse
-					stringparse[index - i] = '\0'; // add null terminator to end of string
+					stringparse[index - i] = '\0'; // add null terminator to end of 
 
 					// make Token and push it
 					struct token Token;
@@ -177,7 +228,41 @@ void tokenize(char *argv, int size) {
 
 			default:
 			{
+				// number parsing
+				// if a number or an identifier aren't found, the char is simply ignored
+				if (isdigit(argv[i])) {
+					int index = findIndexOfNextNonNumericChar(argv,i,size);
+					if (index != -1) {
+						char * numberparse = malloc(sizeof(char) * (index - i)); // array for substring. add 1 for null terminator
+						memcpy(numberparse, &argv[i], index - i); // substrings argv and sets as stringparse
 
+						// make Token and push it
+						struct token Token;
+						Token.payload = numberparse;
+						Token.type = TYPE_NUMBER;
+						pushToken(Token);
+
+						i = index - 1;
+						break;
+					}
+				// else, likely identifier parsing
+				} else {
+					int index = findIndexOfNextNonAlphanumericChar(argv,i,size);
+					if (index != -1) {
+						char * identifierparse = malloc(sizeof(char) * (index - i)); // array for substring. add 1 for null terminator
+						memcpy(identifierparse, &argv[i], index - i); // substrings argv and sets as stringparse
+
+						// make Token and push it
+						struct token Token;
+						Token.payload = identifierparse;
+						Token.type = TYPE_IDENTIFIER;
+						pushToken(Token);
+
+						i = index - 1;
+						break;
+					}
+				}
+				break;
 			}
 		}
 	}
@@ -258,7 +343,7 @@ char * tokenTypeString(int typeId) {
 		case TYPE_KW_MAIN: return "KW_MAIN";
 		case TYPE_KW_SCANF: return "KW_SCANF";
 		case TYPE_KW_PRINTF: return "KW_PRINTF";
-		//case TYPE_KW_WHILE: return "KW_WHILE"; has duplicated ID. Fix is in another branch
+		case TYPE_KW_WHILE: return "KW_WHILE";
 		default: return "UNKNOWN";
 	}
 
@@ -277,6 +362,26 @@ int findIndexOfNextChar(char * buffer, int position, int size, char target) {
 	while ((position + 1) < size) {
 		position = position + 1;
 		if (buffer[position] == target) return (position + 1);
+	}
+	return -1;
+}
+
+int findIndexOfNextNonAlphanumericChar(char * buffer, int position, int size) {
+	while ((position + 1) < size) {
+		position = position + 1;
+		if (!isdigit(buffer[position]) && !isalpha(buffer[position]) && buffer[position] != '_') {
+			return position;
+		}
+	}
+	return -1;
+}
+
+int findIndexOfNextNonNumericChar(char * buffer, int position, int size) {
+	while ((position + 1) < size) {
+		position = position + 1;
+		if (!isdigit(buffer[position])) {
+			return position;
+		}
 	}
 	return -1;
 }
