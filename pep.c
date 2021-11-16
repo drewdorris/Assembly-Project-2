@@ -49,7 +49,7 @@ void pepDeclaration(struct declaration * decl) {
         // write tag and go into main block
 		// NOP0 is used to make auto commenting easier
 		case DECL_MAIN:
-			printf("main:\tNOP0");
+			printf(";MAIN\nmain:\tNOP0");
 			pepBlock(&decl->functionBlock);
 			break;
         // for variable decl. outside of main
@@ -59,7 +59,7 @@ void pepDeclaration(struct declaration * decl) {
 			//	the previous allocation (who's pointer is stored in the vars varList)
 			tempString = (char *)malloc(sizeof(char) * 20);
 			// insert a formatted string into the new allocation
-			sprintf(tempString, "%s:\t.WORD\tx00\n", decl->identifier);
+			sprintf(tempString, "%s:\t.WORD\t0x00\n", decl->identifier);
 			// add pointer to list
 			addVar(&vars, tempString);
 			// check if declaration includes additional expression elements ie. x = 2 + 3
@@ -136,7 +136,7 @@ void pepPrintExpression(struct expression * expr) {
 		break;
 	case EXPR_VAL_IDENTIFIER:
 		// make a DECO statment using identifier
-		printf("\tDECO %s,d\n", (char *)expr->left);
+		printf("\tDECO %s,d\t\t;output decimal value to terminal\n", (char *)expr->left);
 		break;
 	default:
 		error("invalid left expression for print");
