@@ -274,7 +274,6 @@ struct block block(struct parser * self) {
 				stmt.identifier = identifier;
 				stmt.rhs = expr;
 				parserExpectOrError(self,TYPE_SEMI);
-
 				struct blockElement elem;
 				elem.type = BLCK_STATEMENT;
 				elem.element = malloc(sizeof(struct statement));
@@ -415,19 +414,21 @@ struct expression expression(struct parser * self) {
 	}
 	//Neg handling part 2
 	if (expr.operator == EXPR_OP_NEG) {
-		parserExpectOrError(self,TYPE_SEMI);
+		//Cannot handle anything else here, just return
+		//parserExpectOrError(self,TYPE_SEMI);
+		parserNext(self);
 		return expr;
 	}
 	//Operator other than neg, or ;
 	{
 		parserNext(self);
 		struct token * opToken = parserLookahead(self);
-		if (parserLookaheadIs(self,TYPE_SEMI)) {
-			expr.operator = EXPR_OP_NOP;
-			expr.rightType = EXPR_VAL_UNARY;
-			expr.right = NULL;
-			return expr;
-		}
+		// if (parserLookaheadIs(self,TYPE_SEMI) || parserLookaheadIs(self,TYPE_RIGHT_PAREN)) {
+		// 	expr.operator = EXPR_OP_NOP;
+		// 	expr.rightType = EXPR_VAL_UNARY;
+		// 	expr.right = NULL;
+		// 	return expr;
+		// }
 		switch (opToken->type) {
 			case TYPE_ADD:
 				expr.operator = EXPR_OP_ADD;
@@ -442,12 +443,18 @@ struct expression expression(struct parser * self) {
 				expr.operator = EXPR_OP_AND;
 				break;
 			default:
-				parserError(self);
+				//Not an operator, must be the next sequence
+				expr.operator = EXPR_OP_NOP;
+				expr.rightType = EXPR_VAL_UNARY;
+				expr.right = NULL;
 				return expr;
+				// parserError(self);
+				// return expr;
 		}
 	}
 	//Right
 	{
+		parserNext(self);
 		struct token * rightToken = parserLookahead(self);
 		switch (rightToken->type) {
 			case TYPE_NUMBER:
@@ -466,6 +473,7 @@ struct expression expression(struct parser * self) {
 				parserError(self);
 				return expr;
 		}
+		parserNext(self);
 	}
 	return expr;
 }
@@ -499,6 +507,12 @@ struct statement printfParse(struct parser * self) {
 		//printf("%d",x);
 		parserNext(self);
 		//Expression here
+		struct expression expr = expression(self);
+		if (expr.leftType == EXPR_VAL_STRING) {
+			parserError(self); //can't have a string here
+		}
+		printfStmt.rhs = expr;
+
 		parserExpectOrError(self,TYPE_RIGHT_PAREN);
 		parserExpectOrError(self,TYPE_SEMI);
 	} else {
