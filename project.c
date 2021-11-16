@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 	char all[MAX_FILE_LENGTH];
 	
 	// bool: tracks whether the previous char was a newline
-	short afterNewLine = 0;
+	short afterNewLine = 1; //the start of the file might as well be a new line
 	// bool: tracks whether we are ignoring the current line we are on
 	short ignoreLine = 0;
 	// stores current char
