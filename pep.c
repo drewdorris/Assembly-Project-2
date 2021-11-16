@@ -8,6 +8,7 @@
 // VARIABLES
 
 int msgCount = 0;		// used to define the tag for referencing ASCII memory (msg[msgCount]: ASCII.)
+int conCount = 0;		// used to define the tag for if, while, etc. type branches.
 char * tempString;		// temporary pointer for strings
 struct varList vars;	// varList holds a list of strings for varaible declaration at the bottom of the code
 
@@ -50,7 +51,7 @@ void pepDeclaration(struct declaration * decl) {
         // write tag and go into main block
 		// NOP0 is used to make auto commenting easier
 		case DECL_MAIN:
-			printf(";MAIN\nmain:\tNOP0");
+			printf(";MAIN\nmain:\tNOP0\n");
 			pepBlock(&decl->functionBlock);
 			break;
         // for variable decl. outside of main
