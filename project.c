@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "token.h"
+#include "pep.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -66,10 +67,19 @@ int main(int argc, char *argv[]) {
 	tokenize(all, (current-1));
 	struct token *tokenarray;
 	get_token_array(1, &tokenarray);
-	for (int i = 0; i < current-1; i++ ){
+	for (int i = 0; i < getTokenCount(); i++ ){
 		printf("%s\n", tokenTypeString(tokenarray[i].type));
 	}
 	
-	
+	//Invoke parser
+	struct parser parser;
+	parserInit(&parser);
+	parser.tokenArray = tokenarray;
+	parser.tokenArrayLength = getTokenCount();
+	struct program prgm = program(&parser);
+	printProgramTree(&prgm);
+
+	//Invoke codegen
+	pepProgramTree(&prgm);
 	return 0;
 }

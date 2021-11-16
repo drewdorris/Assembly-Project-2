@@ -12,6 +12,10 @@ void tokenInit(struct token * self) {
 	self->payload = NULL;
 }
 
+int getTokenCount() {
+	return tokencount;
+}
+
 void tokenize(char *argv, int size) {
 	for (int i = 0; i <= size; i++) {
 		switch (argv[i]) {

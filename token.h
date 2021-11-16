@@ -63,6 +63,8 @@ struct token {
 
 void tokenInit(struct token * self);
 
+int getTokenCount();
+
 void tokenize(char *argv, int size);
 
 void get_token_array(int which,struct token **buffer);
