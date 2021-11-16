@@ -124,8 +124,8 @@ struct declaration {
 #define STMT_WHILE 7 // Doesn't end with ; but is functionally the same. While-block
 struct statement {
 	int statementType;
-	// Block statements
-	struct block * block;
+	// Block statements (standalone/if/while)
+	struct block block;
 	// Types with identifiers (var assign, function call, scanf target)
 	char * identifier;
 	// Types with right-hand sides
