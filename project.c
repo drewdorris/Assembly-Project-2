@@ -64,10 +64,10 @@ int main(int argc, char *argv[]) {
 	
 	// array is now set up, future expansion here
 	
-	tokenize(all, (current-1));
+	tokenize(all, current);
 	struct token *tokenarray;
 	get_token_array(1, &tokenarray);
-	for (int i = 0; i < current-1; i++ ){
+	for (int i = 0; i < current; i++ ){
 		printf("%s\n", tokenTypeString(tokenarray[i].type));
 	}
 	
