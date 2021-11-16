@@ -4,33 +4,42 @@
 #include <stdio.h>
 #include <ctype.h>
 
+//array of tokens found from the tokenization of the input file
 struct token tokens[1000];
+//count of the number of tokens in the token array
 int tokencount = 0;
+
 
 void tokenInit(struct token * self) {
 	self->type = TYPE_WHITESPACE;
 	self->payload = NULL;
 }
 
+//returns the token count
 int getTokenCount() {
 	return tokencount;
 }
 
+//loops through the char array stored from reading in the file and generates the appropriate tokens
 void tokenize(char *argv, int size) {
 	for (int i = 0; i <= size; i++) {
 		switch (argv[i]) {
-
+			
+			//whitespace is discarded	
 			case ' ':
 			{
 				break;
 			}
-
+			
+			//upon finding the first char of a keyword, then compares to see if the keyword was found	
 			case 'i': 
-			{
+			{	
+				//checks the input and compares to "int" to generate int kw token
 				if (tryForString(argv,i,size,"int")) {
 					pushTokenType(TYPE_KW_INT);
 					i = i + 2;
 					break;
+				//checks the input and compares to "if" to generate if kw token	
 				} else if (tryForString(argv,i,size,"if")) {
 					struct token token;
 					pushTokenType(TYPE_KW_IF);
@@ -38,59 +47,72 @@ void tokenize(char *argv, int size) {
 					break;
 				}
 			}
-
+			
+			//upon finding the first char of a keyword, then compares to see if the keyword was found	
 			case 'm':
-			{
+			{	
+				//checks the input and compares to "main" to generate main kw token
 				if (tryForString(argv,i,size,"main")) {
 					pushTokenType(TYPE_KW_MAIN);
 					i = i + 3;
 					break;
 				}
 			}
-
+			
+			//upon finding the first char of a keyword, then compares to see if the keyword was found	
 			case 'e':
 			{
+				//checks the input and compares to "else" to generate else kw token
 				if (tryForString(argv,i,size,"else")) {
 					pushTokenType(TYPE_KW_ELSE);
 					i = i + 3;
 					break;
 				}
 			}
-
+			
+			//upon finding the first char of a keyword, then compares to see if the keyword was found	
 			case 'r':
 			{
+				//checks the input and compares to "return" to generate return kw token
 				if (tryForString(argv,i,size,"return")) {
 					pushTokenType(TYPE_KW_RETURN);
 					i = i + 5;
 					break;
 				}
 			}
-
+			
+			//upon finding the first char of a keyword, then compares to see if the keyword was found	
 			case 'v':
 			{
+				//checks the input and compares to "void" to generate void kw token
 				if (tryForString(argv,i,size,"void")) {
 					pushTokenType(TYPE_KW_VOID);
 					i = i + 3;
 					break;
 				}
 			}
-
+			
+			//upon finding the first char of a keyword, then compares to see if the keyword was found	
 			case 's':
 			{
+				//checks the input and compares to "scanf" to generate scanf kw token
 				if (tryForString(argv,i,size,"scanf")) {
 					pushTokenType(TYPE_KW_SCANF);
 					i = i + 4;
 					break;
 				}
+				//checks the input and compares to "short" to generate short kw token
 				if (tryForString(argv,i,size,"short")) {
 					pushTokenType(TYPE_KW_SHORT);
 					i = i + 4;
 					break;
 				}
 			}
-
+			
+			//upon finding the first char of a keyword, then compares to see if the keyword was found	
 			case 'w':
 			{
+				//checks the input and compares to "while" to generate while kw token
 				if (tryForString(argv,i,size,"while")) {
 					pushTokenType(TYPE_KW_WHILE);
 					i = i + 4;
@@ -98,8 +120,10 @@ void tokenize(char *argv, int size) {
 				}
 			}
 
+			//upon finding the first char of a keyword, then compares to see if the keyword was found	
 			case 'p':
 			{
+				//checks the input and compares to "printf" to generate printf kw token
 				if (tryForString(argv,i,size,"printf")) {
 					pushTokenType(TYPE_KW_PRINTF);
 					i = i + 5;
@@ -107,54 +131,64 @@ void tokenize(char *argv, int size) {
 				}
 			}
 
+			//upon finding punctuation, generates the appropriate token  	
 			case ',':
 			{
 				pushTokenType(TYPE_COMMA);
 				break;
 			}
-
+			
+			//upon finding punctuation, generates the appropriate token  	
 			case ';':
 			{
 				struct token token;
 				pushTokenType(TYPE_SEMI);
 				break;
 			}
-
+			
+			//upon finding an operator, generates the appropriate token	
 			case '+':
 			{
 				pushTokenType(TYPE_ADD);
 				break;
 			}
 
+			//upon finding an operator, generates the appropriate token	
 			case '-':
 			{
 				pushTokenType(TYPE_SUB);
 				break;
 			}
 
+			//upon finding an operator, generates the appropriate token	
 			case '&':
 			{
 				pushTokenType(TYPE_AND);
 				break;
 			}
 
+			//upon finding an operator, generates the appropriate token	
 			case '|':
 			{
 				pushTokenType(TYPE_OR);
 				break;
 			}
 
+			//upon finding an operator, generates the appropriate token	
 			case '=':
-			{
+			{	
+				//if the equality operator '==' is found, generate the appropriate token
 				if (tryForString(argv,i,size,"==")) {
 					pushTokenType(TYPE_CD_EQUAL);
 					i = i + 1;
 					break;
 				}
+				//else if the assignment operator '=' is found, generate the appropriate token
 				pushTokenType(TYPE_ASSIGN);
 				break;
 			}
 
+			//upon finding a conditional operator, generates the appropriate token	
 			case '<':
 			{
 				if (tryForString(argv,i,size,"<=")) {
@@ -166,6 +200,7 @@ void tokenize(char *argv, int size) {
 				break;
 			}
 
+			//upon finding a conditional operator, generates the appropriate token	
 			case '>':
 			{
 				if (tryForString(argv,i,size,">=")) {
@@ -176,9 +211,11 @@ void tokenize(char *argv, int size) {
 				pushTokenType(TYPE_CD_GREATER);
 				break;
 			}
-
+			
+			//upon finding a conditional operator, generates the appropriate token	
 			case '!':
 			{
+				//if the negate operator '!=', generate the appropriate token
 				if (tryForString(argv,i,size,"!=")) {
 					pushTokenType(TYPE_CD_NOT_EQUAL);
 					i = i + 1;
@@ -186,30 +223,36 @@ void tokenize(char *argv, int size) {
 				}
 			}
 
+			//upon finding punctuation, generates the appropriate token  	
 			case '(':
 			{
 				pushTokenType(TYPE_LEFT_PAREN);
 				break;
 			}
 
+			//upon finding punctuation, generates the appropriate token  	
 			case ')':
 			{
 				pushTokenType(TYPE_RIGHT_PAREN);
 				break;
 			}
 
+			//upon finding punctuation, generates the appropriate token  	
 			case '{':
 			{
 				pushTokenType(TYPE_LEFT_BRACE);
 				break;
 			}
 
+			//upon finding punctuation, generates the appropriate token  	
 			case '}':
 			{
 				pushTokenType(TYPE_RIGHT_BRACE);
 				break;
 			}
-
+			
+			//upon finding a double quote, all input will be captured until a second double quote is found,
+			//this is then stored as the payload of a string token	
 			case '"':
 			{
 				int index = findIndexOfNextChar(argv,i,size,'"');
@@ -274,7 +317,6 @@ void tokenize(char *argv, int size) {
 	
 //Getter for array of tokens
 //https://stackoverflow.com/questions/9914122/getting-an-array-from-another-file-in-c/9914238
-
 void get_token_array(int which, struct token **buffer) {
 	if(which == 1) *buffer = tokens;
 }
@@ -308,6 +350,8 @@ void get_token_array(int which, struct token **buffer) {
 		a->used = a->size = 0;
 	}
 	*/
+
+
 char * tokenTypeString(int typeId) {
 	switch (typeId) {
 		case TYPE_WHITESPACE: return "WHITESPACE";
@@ -353,6 +397,7 @@ char * tokenTypeString(int typeId) {
 
 }
 
+//will attempt to assemble and compare a target string for equality to see if it is found in the passed input
 int tryForString(char * buffer, int position, int size, char * target) {
 	int targetLen = strlen(target);
 	for (int i = 0; i < targetLen; i++) {
@@ -362,6 +407,7 @@ int tryForString(char * buffer, int position, int size, char * target) {
 	return 1;
 }
 
+//will return the index of the next specified char from the passed input
 int findIndexOfNextChar(char * buffer, int position, int size, char target) {
 	while ((position + 1) < size) {
 		position = position + 1;
@@ -370,6 +416,7 @@ int findIndexOfNextChar(char * buffer, int position, int size, char target) {
 	return -1;
 }
 
+//will return the index of the next Non-Alphanumeric char from the passed input
 int findIndexOfNextNonAlphanumericChar(char * buffer, int position, int size) {
 	while ((position + 1) < size) {
 		position = position + 1;
@@ -380,6 +427,7 @@ int findIndexOfNextNonAlphanumericChar(char * buffer, int position, int size) {
 	return -1;
 }
 
+//will return the index of the next Non-Numeric char from the passed input
 int findIndexOfNextNonNumericChar(char * buffer, int position, int size) {
 	while ((position + 1) < size) {
 		position = position + 1;
@@ -390,11 +438,13 @@ int findIndexOfNextNonNumericChar(char * buffer, int position, int size) {
 	return -1;
 }
 
+//pushes the passed token to the token array and increments the count
 void pushToken(struct token tok) {
 	tokens[tokencount] = tok;
 	tokencount++;
 }
 
+//generates a new token of the passed type before adding it to the token array and incrementing the count
 void pushTokenType(int type) {
 	struct token token;
 	token.type = type;
