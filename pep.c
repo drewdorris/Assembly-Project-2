@@ -163,7 +163,7 @@ void pepExpression(struct expression * expr) {
 			}
 			break;
 		case EXPR_VAL_STRING:
-			error("attempted to pass a string payload into regualr pepExpression");
+			error("attempted to pass a string payload into regular pepExpression");
 			break;
 		case EXPR_VAL_IDENTIFIER:
 			printf("\tLDWA %s,d", (char *)expr->left);
