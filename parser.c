@@ -582,11 +582,11 @@ void printStatement(struct statement * stmt, int indent) {
 	switch (stmt->statementType) {
 		case STMT_SCANF_CALL:
 			printf("SCANF ");
-			printf(stmt->identifier);
+			printf("%s",stmt->identifier);
 			break;
 		case STMT_VAR_ASSIGNMENT:
 			printf("VAR_ASSIGNMENT ");
-			printf(stmt->identifier);
+			printf("%s",stmt->identifier);
 			printf(" <- ");
 			printExpression(&stmt->rhs);
 			break;
