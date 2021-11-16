@@ -35,6 +35,7 @@ void pepProgramTree(struct program * root) {
 	// construct varList vars
 	varListInit(&vars);
 	// header with # of decls
+	printf("\n====================\nPep9 Generated Code\n====================\n\n");
 	printf(";C Program to Pep9 (%d declarations)\n",root->nDeclarations);
 	// loop through each decl
 	for (int i = 0; i < root->nDeclarations; i++) {
@@ -65,7 +66,7 @@ void pepDeclaration(struct declaration * decl) {
 			// check if declaration includes additional expression elements ie. x = 2 + 3
 			if (decl->init!=NULL) {
 				pepExpression(decl->init);
-				printf("\tSTWA %s,d\n", decl->identifier);
+				printf("\tSTWA %s,d\t\t; store word from assembler\n", decl->identifier);
 			}
             break;
         // TODO for method/functions (if implemented)
@@ -100,7 +101,7 @@ void pepStatement(struct statement * stmt) {
 		case STMT_VAR_ASSIGNMENT:
 			// call and print expression contents and then store
 			pepExpression(&stmt->rhs);
-			printf("\tSTWA %s,d\n", stmt->identifier);
+			printf("\tSTWA %s,d\t\t; store word from assembler\n", stmt->identifier);
 			break;
 		case STMT_RETURN:
 			// only current use for return is to end the program
@@ -111,7 +112,7 @@ void pepStatement(struct statement * stmt) {
 			pepPrintExpression(&stmt->rhs);
 			break;
 		case STMT_SCANF_CALL:
-			printf("\tDECI %s,d\n", stmt->identifier);
+			printf("\tDECI %s,d\t\t; take in decimal input from terminal, store to memory\n", stmt->identifier);
 			break;
 		default:
 			error("invalid statement type");
@@ -119,11 +120,12 @@ void pepStatement(struct statement * stmt) {
 	}
 }
 
+// Function: generate Pep9 code for printing expression struct contents
 void pepPrintExpression(struct expression * expr) {
 	switch (expr->leftType) {
 	case EXPR_VAL_STRING:
 		// make a STRO statment for literal
-		printf("\tSTRO msg%d,d\n", msgCount);
+		printf("\tSTRO msg%d,d\t\t; print string literal from STRO msg%d\n", msgCount, msgCount);
 
 		// Add 30 to the length of the string (length of string with empty expr string) for n characters and allocate memory.
 		// additionally, using malloc without free will give a new allocation to the tempString pointer without removing
@@ -136,7 +138,7 @@ void pepPrintExpression(struct expression * expr) {
 		break;
 	case EXPR_VAL_IDENTIFIER:
 		// make a DECO statment using identifier
-		printf("\tDECO %s,d\t\t;output decimal value to terminal\n", (char *)expr->left);
+		printf("\tDECO %s,d\t\t; output decimal value to terminal\t\t; \n", (char *)expr->left);
 		break;
 	default:
 		error("invalid left expression for print");
