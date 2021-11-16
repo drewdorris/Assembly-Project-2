@@ -206,8 +206,8 @@ void pepExpression(struct expression * expr) {
 		case EXPR_VAL_NUMBER:
 			{
 				// print value after operation
-				int * val = (int *) expr->left;
-				printf(" i,%x\n",*val);
+				int * val = (int *) expr->right;
+				printf(" 0x%x,i\n",*val);
 			}
 			break;
 		case EXPR_VAL_STRING:
