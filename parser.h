@@ -126,6 +126,8 @@ struct statement {
 	int statementType;
 	// Block statements (standalone/if/while)
 	struct block block;
+	// Block statement for else. For the IF type, this is nElements=0 if there is no else. Otherwise undefined.
+	struct block block2;
 	// Types with identifiers (var assign, function call, scanf target)
 	char * identifier;
 	// Types with right-hand sides

@@ -398,11 +398,24 @@ struct block block(struct parser * self) {
 			parserExpectOrError(self,TYPE_RIGHT_PAREN);
 			parserExpectOrError(self,TYPE_LEFT_BRACE);
 			struct block ifBlock = block(self);
+			// default else block in case we do not have one
+			struct block elseBlock;
+			elseBlock.nElements = 0;
+			elseBlock.elements = NULL;
+			// try for else
+			// fprintf(stderr,"%s",tokenTypeString(parserLookahead(self)->type));
+			if (parserLookaheadIs(self,TYPE_KW_ELSE)) {
+				// We got an else, get that block
+				parserNext(self);
+				parserExpectOrError(self,TYPE_LEFT_BRACE);
+				elseBlock = block(self);
+			}
 			// set up block
 			struct statement stmt;
 			stmt.statementType = STMT_IF;
 			stmt.rhs = cond;
 			stmt.block = ifBlock;
+			stmt.block2 = elseBlock;
 
 			struct blockElement elem;
 			elem.type = BLCK_STATEMENT;
@@ -442,6 +455,8 @@ struct block block(struct parser * self) {
 			nBlockElements++;
 		}
 	}
+	// Right brace should be here
+	parserExpectOrError(self,TYPE_RIGHT_BRACE);
 	// Create block structure
 	struct block block;
 	block.elements = blockElements;
@@ -699,6 +714,17 @@ void printStatement(struct statement * stmt, int indent) {
 			break;
 		case STMT_IF:
 			printf("IF ");
+			printExpression(&stmt->rhs);
+			printf("\n");
+			printBlock(&stmt->block,indent+1);
+			if (stmt->block2.nElements != 0) {
+				printIndent(indent);
+				printf("ELSE\n");
+				printBlock(&stmt->block2,indent+1);
+			}
+			break;
+		case STMT_WHILE:
+			printf("WHILE ");
 			printExpression(&stmt->rhs);
 			printf("\n");
 			printBlock(&stmt->block,indent+1);
