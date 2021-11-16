@@ -1,77 +1,116 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "parser.h"
 #include "token.h"
+#include "pep.h"
 
+// Run a parser debug program
 void parserDebug(void) {
 	/*
 	[ int ][ main ][ ( ][ ) ][ { ]
+		[ int ][ x ][ ; ]
+		[ short ][ y ][ = ][ 10 ][ ; ]
+		[ x ][ = ][ 42 ][ ; ]
 		[ printf ][ ( ][ "Hello World!\n" ][ ) ][ ; ]
 		[ return ][ 0 ][ ; ]
 	[ } ]
 	*/
-	struct token tokens[16];
+	struct token tokens[32];
 	tokens[0].type = TYPE_KW_INT;
 	tokens[1].type = TYPE_KW_MAIN;
 	tokens[2].type = TYPE_LEFT_PAREN;
 	tokens[3].type = TYPE_RIGHT_PAREN;
 	tokens[4].type = TYPE_LEFT_BRACE;
-	tokens[5].type = TYPE_KW_PRINTF;
-	tokens[6].type = TYPE_LEFT_PAREN;
-	tokens[7].type = TYPE_STRING;
-	tokens[7].payload = "Hello World!\n";
-	tokens[8].type = TYPE_RIGHT_PAREN;
-	tokens[9].type = TYPE_SEMI;
-	tokens[10].type = TYPE_KW_RETURN;
+
+	tokens[5].type = TYPE_KW_INT;
+	tokens[6].type = TYPE_IDENTIFIER;
+	tokens[6].payload = "x";
+	tokens[7].type = TYPE_SEMI;
+
+	tokens[8].type = TYPE_KW_SHORT;
+	tokens[9].type = TYPE_IDENTIFIER;
+	tokens[9].payload = "y";
+	tokens[10].type = TYPE_ASSIGN;
 	tokens[11].type = TYPE_NUMBER;
-	int ret = 42;
-	tokens[11].payload = &ret;
+	tokens[11].payload = malloc(sizeof(int));
+	*((int *)tokens[11].payload) = 10;
 	tokens[12].type = TYPE_SEMI;
-	tokens[13].type = TYPE_RIGHT_BRACE;
+
+	tokens[13].type = TYPE_IDENTIFIER;
+	tokens[13].payload = "x";
+	tokens[14].type = TYPE_ASSIGN;
+	tokens[15].type = TYPE_NUMBER;
+	tokens[15].payload = malloc(sizeof(int));
+	*((int *)tokens[15].payload) = 42;
+	tokens[16].type = TYPE_SEMI;
+
+	tokens[17].type = TYPE_KW_PRINTF;
+	tokens[18].type = TYPE_LEFT_PAREN;
+	tokens[19].type = TYPE_STRING;
+	tokens[19].payload = "Hello World!\\n";
+	tokens[20].type = TYPE_RIGHT_PAREN;
+	tokens[21].type = TYPE_SEMI;
+	tokens[22].type = TYPE_KW_RETURN;
+	tokens[23].type = TYPE_NUMBER;
+	int ret = 42;
+	tokens[23].payload = &ret;
+	tokens[24].type = TYPE_SEMI;
+	tokens[25].type = TYPE_RIGHT_BRACE;
 
 	struct parser testParser;
 	testParser.tokenArray = tokens;
-	testParser.tokenArrayLength = 14;
+	testParser.tokenArrayLength = 26;
 	parserInit(&testParser);
 	struct program prgm = program(&testParser);
+	printf("===Parsed===\n\n");
 	printProgramTree(&prgm);
+	printf("===PEP9===\n\n");
+	pepProgramTree(&prgm);
 }
 
+// Initialise state of the parser. User should set the tokenArray and tokenArrayLength fields afterward.
 void parserInit(struct parser * self) {
 	self->currentToken = 0;
 }
 
+// Returns true value if there are tokens left in the array.
 int parserHasNext(struct parser * self) {
 	return self->currentToken != self->tokenArrayLength;
 }
 
+// Advance to the next token, or emit an error at the end of the sequence.
 int parserNext(struct parser * self) {
 	if (self->currentToken == self->tokenArrayLength) {
-		parserError();
+		parserError(self);
 	}
 	self->currentToken++;
 	return 1;
 }
 
+// Return true if the current token is of the provided type.
 int parserLookaheadIs(struct parser * self, int type) {
 	return parserLookahead(self)->type == type;
 }
-
+// Return the current token.
 struct token * parserLookahead(struct parser * self) {
 	return &self->tokenArray[self->currentToken];
 }
 
+// Consume the current token if the current token is the provided type, otherwise emit an error. After returning the parser will be on the next
+// token.
 void parserExpectOrError(struct parser * self, int type) {
 	if (parserLookaheadIs(self,type)) {
 		parserNext(self);
 	} else {
-		fprintf(stderr,"Syntax error");
+		fprintf(stderr,"Syntax error, needed toktype %d, tokidx %d", type, self->currentToken);
 		exit(1);
 	}
 }
 
-void parserError(void) {
-	fprintf(stderr,"Syntax error");
+// Emit an error and stop.
+void parserError(struct parser * self) {
+	fprintf(stderr,"Syntax error, tokidx %d",self->currentToken);
 	exit(1);
 }
 
@@ -81,16 +120,18 @@ void parserError(void) {
 struct program program(struct parser * self) {
 	struct declaration * decls = malloc(sizeof(struct declaration) * 256);
 	int nDecls = 0;
-	while (parserLookaheadIs(self,TYPE_KW_INT) || parserLookaheadIs(self,TYPE_KW_SHORT) || parserLookaheadIs(self,TYPE_KW_VOID)) {
+	while (parserLookaheadIs(self,TYPE_KW_INT) || parserLookaheadIs(self,TYPE_KW_SHORT) || parserLookaheadIs(self,TYPE_KW_VOID)) {;
 		//start of declaration
 		struct declaration decl = declaration(self);
 		//add declaration to list
 		if (nDecls == 256) {
-			parserError();
+			parserError(self);
 		}
 		decls[nDecls] = decl;
 		nDecls++;
-		if (!parserHasNext(self)) break;
+		if (!parserHasNext(self)) {
+			break;
+		}
 	}
 	struct program prgm;
 	prgm.nDeclarations = nDecls;
@@ -121,6 +162,9 @@ struct declaration declaration(struct parser * self) {
 	} else if (parserLookaheadIs(self,TYPE_IDENTIFIER)) {
 		//identifier, could be a variable, could be a function
 		char * identifier = parserLookahead(self)->payload;
+		if (strlen(identifier) > 8) {
+			parserError(self); //prohibit identifier names longer than 8 chars
+		}
 		parserNext(self);
 		//semicolon, assignment, or function? next token ;, =, or ( determines it
 		switch (parserLookahead(self)->type) {
@@ -128,6 +172,7 @@ struct declaration declaration(struct parser * self) {
 				{
 					//int x;
 					//I'll make an implementation-defined decision to zero-initialise anyway despite null being allowed to indicate no initialiser
+					parserNext(self);
 					struct expression * zeroinitExpr = malloc(sizeof(struct expression));
 					switch (varType) {
 						case TYPE_KW_INT:
@@ -150,7 +195,7 @@ struct declaration declaration(struct parser * self) {
 							}
 						default:
 							//void x; makes no sense
-							parserError();
+							parserError(self);
 					}
 				}
 				break;
@@ -161,7 +206,7 @@ struct declaration declaration(struct parser * self) {
 				struct expression exprData = expression(self);
 				if (exprData.leftType == EXPR_VAL_STRING) {
 					//Can't assign a string to an int/short as this makes no sense
-					parserError();
+					parserError(self);
 				}
 				//otherwise this is fine
 				struct declaration decl;
@@ -176,8 +221,8 @@ struct declaration declaration(struct parser * self) {
 				//int x(...) {}
 				parserNext(self);
 				//right now ignoring possibility of function arguments and balking
-				parserExpectOrError(self,TYPE_RIGHT_PAREN);
 				if (parserLookaheadIs(self,TYPE_KW_VOID)) parserNext(self); //skip void, as in int fun(void)
+				parserExpectOrError(self,TYPE_RIGHT_PAREN);
 				parserExpectOrError(self,TYPE_LEFT_BRACE);
 				struct block blockData = block(self);
 				struct declaration fdecl;
@@ -187,7 +232,13 @@ struct declaration declaration(struct parser * self) {
 				fdecl.functionBlock = blockData;
 				return fdecl;
 		}
+	} else {
+		parserError(self);
 	}
+	//We should never get here
+	struct declaration noUse;
+	noUse.declarationType = DECL_FUNCTION;
+	return noUse;
 }
 
 //Blocks introduced { }. Contains a sequence of semicolon-seperated statements which can include declarations
@@ -199,14 +250,13 @@ struct block block(struct parser * self) {
 		if (parserLookaheadIs(self,TYPE_KW_INT) || parserLookaheadIs(self,TYPE_KW_SHORT)) {
 			//start of declaration
 			struct declaration decl = declaration(self);
-
 			struct blockElement elem;
 			elem.type = BLCK_DECLARATION;
-			elem.element = elem.element = malloc(sizeof(struct declaration));
+			elem.element = malloc(sizeof(struct declaration));
 			*((struct declaration *)(elem.element)) = decl;
 			//add data to list
 			if (nBlockElements == 256) {
-				parserError();
+				parserError(self);
 			}
 			blockElements[nBlockElements] = elem;
 			nBlockElements++;
@@ -227,11 +277,11 @@ struct block block(struct parser * self) {
 
 				struct blockElement elem;
 				elem.type = BLCK_STATEMENT;
-				elem.element = elem.element = malloc(sizeof(struct statement));
+				elem.element = malloc(sizeof(struct statement));
 				*((struct statement *)(elem.element)) = stmt;
 				//add data to list
 				if (nBlockElements == 256) {
-					parserError();
+					parserError(self);
 				}
 				blockElements[nBlockElements] = elem;
 				nBlockElements++;
@@ -239,10 +289,10 @@ struct block block(struct parser * self) {
 			} else if (parserLookaheadIs(self,TYPE_LEFT_PAREN)) {
 				//function call
 				//let's not handle this one for now as spec does not require it
-				parserError();
+				parserError(self);
 			} else {
 				//something we can't handle
-				parserError();
+				parserError(self);
 			}
 		} else if (parserLookaheadIs(self,TYPE_KW_PRINTF)) {
 			//printf here, definitely a print call
@@ -256,7 +306,35 @@ struct block block(struct parser * self) {
 			//add data to list
 			//choosing to balk if the user somehow has more than 256 decls/statements in a block
 			if (nBlockElements == 256) {
-				parserError();
+				parserError(self);
+			}
+			blockElements[nBlockElements] = elem;
+			nBlockElements++;
+		} else if (parserLookaheadIs(self,TYPE_KW_SCANF)) {
+			//scanf ( "ignored" , & ident ) ;
+			parserNext(self);
+			parserExpectOrError(self,TYPE_LEFT_PAREN);
+			parserExpectOrError(self,TYPE_STRING);
+			parserExpectOrError(self,TYPE_COMMA);
+			parserExpectOrError(self,TYPE_AND);
+			if (!parserLookaheadIs(self,TYPE_IDENTIFIER)) {
+				parserError(self);
+			}
+			char * scanfTarget = (char *) parserLookahead(self)->payload;
+			parserExpectOrError(self,TYPE_RIGHT_PAREN);
+			parserExpectOrError(self,TYPE_SEMI);
+
+			struct statement stmt;
+			stmt.statementType = STMT_SCANF_CALL;
+			stmt.identifier = scanfTarget;
+
+			struct blockElement elem;
+			elem.type = BLCK_STATEMENT;
+			elem.element = malloc(sizeof(struct statement));
+			*((struct statement *)(elem.element)) = stmt;
+			//add data to list
+			if (nBlockElements == 256) {
+				parserError(self);
 			}
 			blockElements[nBlockElements] = elem;
 			nBlockElements++;
@@ -278,20 +356,20 @@ struct block block(struct parser * self) {
 
 			struct blockElement elem;
 			elem.type = BLCK_STATEMENT;
-			elem.element = elem.element = malloc(sizeof(struct statement));
+			elem.element = malloc(sizeof(struct statement));
 			*((struct statement *)(elem.element)) = stmt;
 			//add data to list
 			if (nBlockElements == 256) {
-				parserError();
+				parserError(self);
 			}
 			blockElements[nBlockElements] = elem;
 			nBlockElements++;
 		} else if (parserLookaheadIs(self,TYPE_KW_IF)) {
 			//If statement-not handling now
-			parserError();
+			parserError(self);
 		} else if (parserLookaheadIs(self,TYPE_KW_WHILE)) {
 			//While statement- not doing that now
-			parserError();
+			parserError(self);
 		}
 	}
 	struct block block;
@@ -330,7 +408,7 @@ struct expression expression(struct parser * self) {
 				expr.left = leftToken->payload;
 				break;
 			default:
-				parserError();
+				parserError(self);
 				return expr;
 		}
 	}
@@ -363,7 +441,7 @@ struct expression expression(struct parser * self) {
 				expr.operator = EXPR_OP_AND;
 				break;
 			default:
-				parserError();
+				parserError(self);
 				return expr;
 		}
 	}
@@ -384,7 +462,7 @@ struct expression expression(struct parser * self) {
 				expr.right = rightToken->payload;
 				break;
 			default:
-				parserError();
+				parserError(self);
 				return expr;
 		}
 	}
@@ -398,7 +476,7 @@ struct expression expression(struct parser * self) {
 struct statement printfParse(struct parser * self) {
 	parserExpectOrError(self,TYPE_LEFT_PAREN);
 	if (!parserLookaheadIs(self,TYPE_STRING)) {
-		parserError(); //string must be here
+		parserError(self); //string must be here
 	}
 
 	struct statement printfStmt;
@@ -423,11 +501,12 @@ struct statement printfParse(struct parser * self) {
 		parserExpectOrError(self,TYPE_RIGHT_PAREN);
 		parserExpectOrError(self,TYPE_SEMI);
 	} else {
-		parserError();
+		parserError(self);
 	}
 	return printfStmt;
 }
 
+// Print an indent.
 void printIndent(int indent) {
 	while (indent > 0) {
 		printf("  ");
@@ -435,6 +514,7 @@ void printIndent(int indent) {
 	}
 }
 
+// Print the full program tree.
 void printProgramTree(struct program * root) {
 	printf("C Program (%d declarations)\n",root->nDeclarations);
 	for (int i = 0; i < root->nDeclarations; i++) {
@@ -442,6 +522,7 @@ void printProgramTree(struct program * root) {
 	}
 }
 
+// Print a declaration.
 void printDeclaration(struct declaration * decl, int indent) {
 	printIndent(indent);
 	printf("Declaration ");
@@ -450,9 +531,18 @@ void printDeclaration(struct declaration * decl, int indent) {
 			printf("MAIN\n");
 			printBlock(&decl->functionBlock,indent+1);
 			break;
+		case DECL_VARIABLE:
+			printf("VAR %s",decl->identifier);
+			if (decl->init != NULL) {
+				printf(" INIT ");
+				printExpression(decl->init);
+			}
+			printf("\n");
+			break;
 	}
 }
 
+// Print a code block.
 void printBlock(struct block * block, int indent) {
 	printIndent(indent);
 	printf("Block (%d elements)\n",block->nElements);
@@ -470,6 +560,7 @@ void printBlock(struct block * block, int indent) {
 	}
 }
 
+// Print a statement.
 void printStatement(struct statement * stmt, int indent) {
 	printIndent(indent);
 	printf("Statement ");

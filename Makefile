@@ -7,11 +7,11 @@ clean:
 	rm *.o proj2-release proj2-debug
 .PHONY: clean
 
-release: project.c
-	gcc -o proj2-release project.c parser.c token.c
+release: project.c parser.c token.c pep.c
+	gcc -o proj2-release project.c parser.c token.c pep.c
 
-debug: project.c
-	gcc -g -o proj2-debug project.c parser.c token.c
+debug: project.c parser.c token.c pep.c
+	gcc -g -o proj2-debug project.c parser.c token.c pep.c
 
 run-rel: release
 	./proj2-release
