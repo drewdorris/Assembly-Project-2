@@ -174,6 +174,12 @@ void tokenize(char *argv, int size) {
 				break;
 			}
 
+			case '~':
+			{
+				pushTokenType(TYPE_NEG);
+				break;
+			}
+
 			//upon finding an operator, generates the appropriate token	
 			case '=':
 			{	
