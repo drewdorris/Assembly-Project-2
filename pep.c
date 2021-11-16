@@ -110,6 +110,9 @@ void pepStatement(struct statement * stmt) {
 		case STMT_PRINTF_CALL:
 			pepPrintExpression(&stmt->rhs);
 			break;
+		case STMT_SCANF_CALL:
+			printf("\tDECI %s,d\n", stmt->identifier);
+			break;
 		default:
 			error("invalid statement type");
 			break;
@@ -166,7 +169,7 @@ void pepExpression(struct expression * expr) {
 			error("attempted to pass a string payload into regular pepExpression");
 			break;
 		case EXPR_VAL_IDENTIFIER:
-			printf("\tLDWA %s,d", (char *)expr->left);
+			printf("\tLDWA %s,d\n", (char *)expr->left);
 			break;
 		case EXPR_VAL_EXPRESSION:
 			// call nested expression
@@ -204,14 +207,14 @@ void pepExpression(struct expression * expr) {
 			{
 				// print value after operation
 				int * val = (int *) expr->left;
-				printf("\ti,%x\n",*val);
+				printf(" i,%x\n",*val);
 			}
 			break;
 		case EXPR_VAL_STRING:
 			error("cannot have string as right hand expression value");
 			break;
 		case EXPR_VAL_IDENTIFIER:
-			printf("\tLDWA %s,d", (char *)expr->right);
+			printf(" %s,d", (char *)expr->right);
 			break;
 		case EXPR_VAL_EXPRESSION:
 			printf("\n");
