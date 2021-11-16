@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 	char all[MAX_FILE_LENGTH];
 	
 	// bool: tracks whether the previous char was a newline
-	short afterNewLine = 1; //the start of the file might as well be a new line
+	short afterNewLine = 1; // the start of the file might as well be a new line
 	// bool: tracks whether we are ignoring the current line we are on
 	short ignoreLine = 0;
 	// stores current char
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 		// then iterate
 		current = current + 1;
 	}
-	all[current] = '\0'; //null insert
+	all[current] = '\0'; // null insert
 	printf("\nTotal characters: %i", current);
 	printf("\nCode: %s\n", all);
 	
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 		printf("%d %s\n", i, tokenTypeString(tokenarray[i].type));
 	}
 	
-	//Invoke parser
+	// Invoke parser
 	struct parser parser;
 	parserInit(&parser);
 	parser.tokenArray = tokenarray;
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 	struct program prgm = program(&parser);
 	printProgramTree(&prgm);
 
-	//Invoke codegen
+	// Invoke codegen
 	pepProgramTree(&prgm);
 	return 0;
 }
