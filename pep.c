@@ -5,7 +5,7 @@
 #include "parser.h"
 #include "pep.h"
 
-//VARIABLES
+// VARIABLES
 
 int msgCount = 0;		// used to define the tag for referencing ASCII memory (msg[msgCount]: ASCII.)
 char * tempString;		// temporary pointer for strings
@@ -57,7 +57,7 @@ void pepDeclaration(struct declaration * decl) {
         case DECL_VARIABLE:
 			// no need to check for allocation size as the below sprintf function can only have a max size of 16 chars
 			// additionally, using malloc without free will give a new allocation to the tempString pointer without removing
-			//	the previous allocation (who's pointer is stored in the vars varList)
+			//  the previous allocation (who's pointer is stored in the vars varList)
 			tempString = (char *)malloc(sizeof(char) * 20);
 			// insert a formatted string into the new allocation
 			sprintf(tempString, "%s:\t.WORD\t0x00\n", decl->identifier);
