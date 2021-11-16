@@ -580,6 +580,16 @@ void printStatement(struct statement * stmt, int indent) {
 	printIndent(indent);
 	printf("Statement ");
 	switch (stmt->statementType) {
+		case STMT_SCANF_CALL:
+			printf("SCANF ");
+			printf(stmt->identifier);
+			break;
+		case STMT_VAR_ASSIGNMENT:
+			printf("VAR_ASSIGNMENT ");
+			printf(stmt->identifier);
+			printf(" <- ");
+			printExpression(&stmt->rhs);
+			break;
 		case STMT_RETURN:
 			printf("RETURN ");
 			printExpression(&stmt->rhs);
