@@ -139,7 +139,9 @@ void pepExpression(struct expression * expr) {
 			// add pointer to list
 			addVar(&vars, tempString);
 			break;
-
+		case EXPR_VAL_IDENTIFIER:
+			printf("\tLDWA %s,d", (char *)expr->left);
+			break;
 		case EXPR_VAL_EXPRESSION:
 			// call nested expression
 			pepExpression(expr->left);
@@ -181,6 +183,9 @@ void pepExpression(struct expression * expr) {
 			break;
 		case EXPR_VAL_STRING:
 			error("cannot have string as right hand expression value");
+			break;
+		case EXPR_VAL_IDENTIFIER:
+			printf("\tLDWA %s,d", (char *)expr->right);
 			break;
 		case EXPR_VAL_EXPRESSION:
 			printf("\n");
