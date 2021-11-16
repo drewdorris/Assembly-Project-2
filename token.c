@@ -160,11 +160,11 @@ void tokenize(char *argv, int size) {
 				int index = findIndexOfNextChar(argv,i,size,'"');
 				if (index != -1) {
                     printf("First %i, second %i ", i, index);
-                    char stringparse[index - i];
+                    char * stringparse = malloc(sizeof(char) * (index - i));
                     memcpy(stringparse, &argv[i], index - i);
                     stringparse[index - 1] = '\0';
 					struct token Token;
-                    strcpy(Token.payload, stringparse); // seg fault here
+                    Token.payload = stringparse;
                     Token.type = TYPE_STRING;
                     pushToken(Token);
 
