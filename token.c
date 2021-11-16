@@ -285,7 +285,9 @@ void tokenize(char *argv, int size) {
 
 						// make Token and push it
 						struct token Token;
-						Token.payload = numberparse;
+						int * intPayload = malloc(sizeof(int));
+						*intPayload = atoi(numberparse);
+						Token.payload = intPayload;
 						Token.type = TYPE_NUMBER;
 						pushToken(Token);
 
