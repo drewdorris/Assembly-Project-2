@@ -54,6 +54,8 @@ struct token {
 #define TYPE_MULT 46 // *
 #define TYPE_DIV 47 // /
 #define TYPE_MOD 48 // %
+#define TYPE_LEFT_SHIFT 49 // <<
+#define TYPE_RIGHT_SHIFT 50 // >>
 // Conditions
 #define TYPE_CD_EQUAL 60 // ==. I haven't decided whether this should be a production of two tokens, or directly handled as one.
 #define TYPE_CD_LESS 61 // <

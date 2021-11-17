@@ -89,13 +89,15 @@ struct blockElement {
 #define EXPR_OP_MULT 6
 #define EXPR_OP_DIV 7
 #define EXPR_OP_MOD 8
+#define EXPR_OP_LS 9 // left shift <<
+#define EXPR_OP_RS 10 // right shift >>
 // Conditional operators, using Pep/9 opcode names
-#define EXPR_OP_EQ 9 // ==
-#define EXPR_OP_NE 10 // !=
-#define EXPR_OP_LT 11 // <
-#define EXPR_OP_LE 12 // <=
-#define EXPR_OP_GT 13 // >
-#define EXPR_OP_GE 14 // >=
+#define EXPR_OP_EQ 11 // ==
+#define EXPR_OP_NE 12 // !=
+#define EXPR_OP_LT 13 // <
+#define EXPR_OP_LE 14 // <=
+#define EXPR_OP_GT 15 // >
+#define EXPR_OP_GE 16 // >=
 
 struct expression {
 	int leftType;

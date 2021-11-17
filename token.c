@@ -232,6 +232,11 @@ void tokenize(char *argv, int size) {
 					i = i + 1;
 					break;
 				}
+				if (tryForString(argv,i,size,"<<")) {
+					pushTokenType(TYPE_LEFT_SHIFT);
+					i = i + 1;
+					break;
+				}
 				pushTokenType(TYPE_CD_LESS);
 				break;
 			}
@@ -241,6 +246,11 @@ void tokenize(char *argv, int size) {
 			{
 				if (tryForString(argv,i,size,">=")) {
 					pushTokenType(TYPE_CD_GREATER_OR_EQUAL);
+					i = i + 1;
+					break;
+				}
+				if (tryForString(argv,i,size,">>")) {
+					pushTokenType(TYPE_RIGHT_SHIFT);
 					i = i + 1;
 					break;
 				}
@@ -415,6 +425,8 @@ char * tokenTypeString(int typeId) {
 		case TYPE_MULT: return "MULT";
 		case TYPE_DIV: return "DIV";
 		case TYPE_MOD: return "MOD";
+		case TYPE_LEFT_SHIFT: return "LEFT_SHIFT";
+		case TYPE_RIGHT_SHIFT: return "RIGHT_SHIFT";
 		//Conditions
 		case TYPE_CD_EQUAL: return "CD_EQUAL";
 		case TYPE_CD_LESS: return "CD_LESS";

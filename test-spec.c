@@ -42,9 +42,32 @@ int main() {
 	printf("%d",x);
 	printf("\n");
 
-	x = x % 7;
+	x = x % 39;
 
-	printf("x = x % 7 = ");	
+	printf("x = x % 39 = ");	
+	printf("%d",x);
+	printf("\n");
+
+	x = x << 4;
+
+	printf("x = x << 3 = ");	
+	printf("%d",x);
+	printf("\n");
+
+	x = x >> 2;
+
+	printf("x = x >> 2 = ");	
+	printf("%d",x);
+	printf("\n");
+
+	x = ~x;
+	printf("x = ~x = ");
+	printf("%d",x);
+	printf("\n");
+
+	x = x >> 1;
+
+	printf("x = x >> 1 = ");	
 	printf("%d",x);
 	printf("\n");
 
