@@ -326,6 +326,7 @@ void pepExpression(struct expression * expr) {
 		case EXPR_OP_NOP:
 			break;
 		case EXPR_OP_MULT:
+			// store first value in the stack
 			printf("\tSTWA -4,s\n\tLDWA"); 
 			if (!hasResultTemp) {
 				// Add 30 to the length of the string (length of string with empty expr string) for n characters and allocate memory.
@@ -353,6 +354,7 @@ void pepExpression(struct expression * expr) {
 			break;
 		case EXPR_OP_MOD:
 		case EXPR_OP_DIV:
+			// store first value in the stack
 			printf("\tSTWA -6,s\n\tLDWA"); 
 			if (!hasResultTemp) {
 				// Add 30 to the length of the string (length of string with empty expr string) for n characters and allocate memory.
@@ -413,9 +415,11 @@ void pepExpression(struct expression * expr) {
 			printf("\tSTWA -6,s\n\tSUBSP 6,i\t;push #retVal #mult1 #mult2\n\tCALL multiply\n\tLDWA 4,s\n\tSTWA resTemp,d\n\tLDWA 0,i\n\tSTWA 2,s\n\tSTWA 4,s\n\tADDSP 6,i\t;pop #retVal #mult1 #mult2\n\tLDWA resTemp,d\n");
 			break;
 		case EXPR_OP_DIV:
+			// end of div calling
 			printf("\tSTWA -8,s\n\tSUBSP 8,i\t;push #remaind #retVal #div1 #div2\n\tCALL divide\n\tLDWA 4,s\n\tSTWA resTemp,d\n\tLDWA 0,i\n\tSTWA 2,s\n\tSTWA 4,s\n\t STWA 6,s\n\tADDSP 8,i\t;pop #remaind #retVal #mult1 #mult2\n\tLDWA resTemp,d");
 			break;
 		case EXPR_OP_MOD:
+			// end of modulo calling
 			printf("\tSTWA -8,s\n\tSUBSP 8,i\t;push #remaind #retVal #div1 #div2\n\tCALL divide\n\tLDWA 6,s\n\tSTWA resTemp,d\n\tLDWA 0,i\n\tSTWA 2,s\n\tSTWA 4,s\n\t STWA 6,s\n\tADDSP 8,i\t;pop #remaind #retVal #mult1 #mult2\n\tLDWA resTemp,d");
 			break;
 		default:

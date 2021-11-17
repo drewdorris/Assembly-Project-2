@@ -169,18 +169,21 @@ void tokenize(char *argv, int size) {
 				break;
 			}
 
+			// upon finding an operator, generates the appropriate token	
 			case '*':
 			{
 				pushTokenType(TYPE_MULT);
 				break;
 			}
 
+			// upon finding an operator, generates the appropriate token	
 			case '/':
 			{
 				pushTokenType(TYPE_DIV);
 				break;
 			}
 
+			// upon finding an operator, generates the appropriate token	
 			case '%':
 			{
 				pushTokenType(TYPE_MOD);
