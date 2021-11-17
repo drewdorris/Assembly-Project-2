@@ -79,12 +79,20 @@ struct blockElement {
 #define EXPR_VAL_IDENTIFIER 3 // Variable, hopefully
 #define EXPR_VAL_EXPRESSION 4 // Nested expression.
 
+// Normal operators
 #define EXPR_OP_NOP 0 // No operation. For constants defined alone i.e. "5"
 #define EXPR_OP_ADD 1
 #define EXPR_OP_SUB 2
 #define EXPR_OP_AND 3
 #define EXPR_OP_OR 4
 #define EXPR_OP_NEG 5 // Unary operator. Right side not used. Bitwise negation.
+// Conditional operators, using Pep/9 opcode names
+#define EXPR_OP_EQ 6 // ==
+#define EXPR_OP_NE 7 // !=
+#define EXPR_OP_LT 8 // <
+#define EXPR_OP_LE 9 // <=
+#define EXPR_OP_GT 10 // >
+#define EXPR_OP_GE 11 // >=
 
 struct expression {
 	int leftType;
@@ -125,8 +133,10 @@ struct declaration {
 #define STMT_WHILE 7 // Doesn't end with ; but is functionally the same. While-block
 struct statement {
 	int statementType;
-	// Block statements
-	struct block * block;
+	// Block statements (standalone/if/while)
+	struct block block;
+	// Block statement for else. For the IF type, this is nElements=0 if there is no else. Otherwise undefined.
+	struct block block2;
 	// Types with identifiers (var assign, function call, scanf target)
 	char * identifier;
 	// Types with right-hand sides

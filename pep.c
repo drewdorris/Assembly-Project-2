@@ -17,7 +17,9 @@ Purpose: Convert a small subset of C language source code into Pep/9 assembly so
 // VARIABLES
 
 int msgCount = 0;		// used to define the tag for referencing ASCII memory (msg[msgCount]: ASCII.)
-int conCount = 0;		// used to define the tag for if, while, etc. type branches.
+int conCount = 0;		// used to define the tag for referencing conditional jumps
+int depth = 0;			// represents the # of layers the code is into nested structs
+int depthMax = 0;		// represents the max depth reached before popping all the way back out
 char * tempString;		// temporary pointer for strings
 struct varList vars;	// varList holds a list of strings for varaible declaration at the bottom of the code
 
@@ -113,20 +115,112 @@ void pepStatement(struct statement * stmt) {
 			pepExpression(&stmt->rhs);
 			printf("\tSTWA %s,d\t\t; store word from assembler\n", stmt->identifier);
 			break;
-		case STMT_RETURN:
-			// only current use for return is to end the program
-			printVars(&vars);
-			printf(".end");
-			break;
 		case STMT_PRINTF_CALL:
 			pepPrintExpression(&stmt->rhs);
 			break;
 		case STMT_SCANF_CALL:
 			printf("\tDECI %s,d\t\t; take in decimal input from terminal, store to memory\n", stmt->identifier);
 			break;
+		case STMT_IF:
+			if (stmt->block2.nElements == 0) {
+				// if case
+				int jumpAfterIf = conCount++;
+				pepConExpression(&stmt->rhs,jumpAfterIf);
+				pepBlock(&stmt->block);
+				printf("\ncon%d: NOP0\t\n", jumpAfterIf);
+			} else {
+				// if/else case
+				int jumpToElse = conCount++;
+				int jumpAfterIf = conCount++;
+				pepConExpression(&stmt->rhs,jumpToElse);
+				pepBlock(&stmt->block);
+				printf("\n\tBR con%d\n", jumpAfterIf);
+				printf("\ncon%d: NOP0\t\n", jumpToElse);
+				pepBlock(&stmt->block2);
+				printf("\ncon%d: NOP0\t\n", jumpAfterIf);
+			}
+			break;
+		case STMT_RETURN:
+			// only current use for return is to end the program
+			printVars(&vars);
+			printf(".end");
+			break;
+		case STMT_WHILE:
+			{
+				int jumpToCondition = conCount++;
+				int jumpAfterLoop = conCount++;
+				printf("\ncon%d: NOP0\t\n", jumpToCondition);
+				pepConExpression(&stmt->rhs,jumpAfterLoop);
+				pepBlock(&stmt->block); // loop body
+				printf("\n\tBR con%d", jumpToCondition);
+				printf("\ncon%d: NOP0\t\n", jumpAfterLoop);
+			}
+			break;
 		default:
 			error("invalid statement type");
 			break;
+	}
+}
+
+// Function: condition expression print
+void pepConExpression(struct expression * expr, int reservedJump) {
+	switch (expr->leftType) {
+		case EXPR_VAL_NUMBER:
+			{
+				// load left hand expr into accumulator
+				int * val = (int *) expr->left;
+				printf("\tLDWA 0x%x,i\n",*val);
+			}
+			break;
+		case EXPR_VAL_STRING:
+			error("attempted to pass a string payload into regular pepExpression");
+			break;
+		case EXPR_VAL_IDENTIFIER:
+			printf("\tLDWA %s,d\n", (char *)expr->left);
+			break;
+		default:
+			error("invalid left expression in con");
+			break;
+	}
+	switch (expr->rightType) {
+		case EXPR_VAL_NUMBER:
+			{
+				int * val = (int *) expr->right;
+				printf("\tCPWA 0x%x,i\n",*val);
+			}
+			break;
+		case EXPR_VAL_IDENTIFIER:
+			printf("\tCPWA %s,d\n", (char *)expr->right);
+			break;
+		case EXPR_VAL_UNARY:
+			printf("\tCPWA 0x1,i\n");
+			break;
+		default:
+			error("invalid right expression in con");
+			break;
+	}
+	switch (expr->operator) {
+		//!! Conditional operators are opposite since branching takes place if something is true in Pep9, the opposite of standard if
+		case EXPR_OP_EQ:
+			printf("\tBRNE con%d\n", reservedJump);
+			break;
+		case EXPR_OP_NE:
+			printf("\tBREQ con%d\n", reservedJump);
+			break;
+		case EXPR_OP_GE:
+			printf("\tBRLT con%d\n", reservedJump);
+			break;
+		case EXPR_OP_LE:
+			printf("\tBRGT con%d\n", reservedJump);
+			break;
+		case EXPR_OP_GT:
+			printf("\tBRLE con%d\n", reservedJump);
+			break;
+		case EXPR_OP_LT:
+			printf("\tBRGE con%d\n", reservedJump);
+			break;
+		case EXPR_OP_NOP:
+			printf("\tBRNE con%d\n", reservedJump);
 	}
 }
 

@@ -398,13 +398,74 @@ struct block block(struct parser * self) {
 			blockElements[nBlockElements] = elem;
 			nBlockElements++;
 		} else if (parserLookaheadIs(self,TYPE_KW_IF)) {
-			// If statement-not handling now
-			parserError(self);
+			// If statement
+			// I do not handle the `if (expr) stmt` form. A block must exist.
+			// RHS is the conditional expression, block is the code to be executed
+			parserNext(self);
+			parserExpectOrError(self,TYPE_LEFT_PAREN);
+			struct expression cond = expression(self);
+			parserExpectOrError(self,TYPE_RIGHT_PAREN);
+			parserExpectOrError(self,TYPE_LEFT_BRACE);
+			struct block ifBlock = block(self);
+			// default else block in case we do not have one
+			struct block elseBlock;
+			elseBlock.nElements = 0;
+			elseBlock.elements = NULL;
+			// try for else
+			// fprintf(stderr,"%s",tokenTypeString(parserLookahead(self)->type));
+			if (parserLookaheadIs(self,TYPE_KW_ELSE)) {
+				// We got an else, get that block
+				parserNext(self);
+				parserExpectOrError(self,TYPE_LEFT_BRACE);
+				elseBlock = block(self);
+			}
+			// set up block
+			struct statement stmt;
+			stmt.statementType = STMT_IF;
+			stmt.rhs = cond;
+			stmt.block = ifBlock;
+			stmt.block2 = elseBlock;
+
+			struct blockElement elem;
+			elem.type = BLCK_STATEMENT;
+			elem.element = malloc(sizeof(struct statement));
+			*((struct statement *)(elem.element)) = stmt;
+			// add data to list
+			if (nBlockElements == 256) {
+				parserError(self);
+			}
+			blockElements[nBlockElements] = elem;
+			nBlockElements++;
 		} else if (parserLookaheadIs(self,TYPE_KW_WHILE)) {
-			// While statement- not doing that now
-			parserError(self);
+			// While statement
+			// I do not handle the `while (expr) stmt` form. A block must exist.
+			// RHS is the conditional expression, block is the code to be executed
+			parserNext(self);
+			parserExpectOrError(self,TYPE_LEFT_PAREN);
+			struct expression cond = expression(self);
+			parserExpectOrError(self,TYPE_RIGHT_PAREN);
+			parserExpectOrError(self,TYPE_LEFT_BRACE);
+			struct block whileBlock = block(self);
+			// set up block
+			struct statement stmt;
+			stmt.statementType = STMT_WHILE;
+			stmt.rhs = cond;
+			stmt.block = whileBlock;
+
+			struct blockElement elem;
+			elem.type = BLCK_STATEMENT;
+			elem.element = malloc(sizeof(struct statement));
+			*((struct statement *)(elem.element)) = stmt;
+			// add data to list
+			if (nBlockElements == 256) {
+				parserError(self);
+			}
+			blockElements[nBlockElements] = elem;
+			nBlockElements++;
 		}
 	}
+	// Right brace should be here
+	parserExpectOrError(self,TYPE_RIGHT_BRACE);
 	// Create block structure
 	struct block block;
 	block.elements = blockElements;
@@ -477,6 +538,26 @@ struct expression expression(struct parser * self) {
 			case TYPE_AND:
 				expr.operator = EXPR_OP_AND;
 				break;
+
+			case TYPE_CD_EQUAL:
+				expr.operator = EXPR_OP_EQ;
+				break;
+			case TYPE_CD_NOT_EQUAL:
+				expr.operator = EXPR_OP_NE;
+				break;
+			case TYPE_CD_GREATER:
+				expr.operator = EXPR_OP_GT;
+				break;
+			case TYPE_CD_GREATER_OR_EQUAL:
+				expr.operator = EXPR_OP_GE;
+				break;
+			case TYPE_CD_LESS:
+				expr.operator = EXPR_OP_LT;
+				break;
+			case TYPE_CD_LESS_OR_EQUAL:
+				expr.operator = EXPR_OP_LE;
+				break;
+			
 			default:
 				// Not an operator, must be the next sequence. Return what we have now.
 				expr.operator = EXPR_OP_NOP;
@@ -640,6 +721,23 @@ void printStatement(struct statement * stmt, int indent) {
 			printf("PRINTF ");
 			printExpression(&stmt->rhs);
 			break;
+		case STMT_IF:
+			printf("IF ");
+			printExpression(&stmt->rhs);
+			printf("\n");
+			printBlock(&stmt->block,indent+1);
+			if (stmt->block2.nElements != 0) {
+				printIndent(indent);
+				printf("ELSE\n");
+				printBlock(&stmt->block2,indent+1);
+			}
+			break;
+		case STMT_WHILE:
+			printf("WHILE ");
+			printExpression(&stmt->rhs);
+			printf("\n");
+			printBlock(&stmt->block,indent+1);
+			break;
 		default:
 			printf("unknown");
 			break;
@@ -686,6 +784,24 @@ void printExpression(struct expression * expr) {
 			break;
 		case EXPR_OP_NOP:
 			printf(" <not used>");
+			break;
+		case EXPR_OP_EQ:
+			printf(" EQ ");
+			break;
+		case EXPR_OP_NE:
+			printf(" NE ");
+			break;
+		case EXPR_OP_GT:
+			printf(" GT ");
+			break;
+		case EXPR_OP_LT:
+			printf(" LT ");
+			break;
+		case EXPR_OP_GE:
+			printf(" GE ");
+			break;
+		case EXPR_OP_LE:
+			printf(" LE ");
 			break;
 		default:
 			printf(" <unknown %d>",expr->operator);

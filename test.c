@@ -10,8 +10,10 @@ int main() {
 			} else {
 				printf("Zero!\n");
 			}
-		} else if (x > 5) {
-			printf("Greater than 5!\n");
+		} else {
+			if (x > 5) {
+				printf("Greater than 5!\n");
+			}
 		}
 	}
 	return 0;

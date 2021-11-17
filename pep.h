@@ -31,6 +31,8 @@ void pepBlock(struct block * block);
 
 void pepStatement(struct statement * stmt);
 
+void pepConExpression(struct expression * expr, int reservedJump);
+
 void pepPrintExpression(struct expression * expr);
 
 void pepExpression(struct expression * expr);
