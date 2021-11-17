@@ -1,3 +1,12 @@
+/*
+Program Name: PepC
+Program Authors: Andrew "Drew" Dorris, Dante Hays, Charles Kinsler, Matthew Lockard, Liam Whitelaw
+Class: CSCI 2160-001
+Lab: Project 2
+Date: 11/16/2021
+Purpose: Convert a small subset of C language source code into Pep/9 assembly source
+*/
+
 #ifndef TOKEN_H
 #define TOKEN_H
 struct token {
