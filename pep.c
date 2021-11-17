@@ -8,6 +8,7 @@
 // VARIABLES
 
 int msgCount = 0;		// used to define the tag for referencing ASCII memory (msg[msgCount]: ASCII.)
+int conCount = 0;		// used to define the tag for referencing conditional jumps
 char * tempString;		// temporary pointer for strings
 struct varList vars;	// varList holds a list of strings for varaible declaration at the bottom of the code
 
@@ -103,19 +104,90 @@ void pepStatement(struct statement * stmt) {
 			pepExpression(&stmt->rhs);
 			printf("\tSTWA %s,d\t\t; store word from assembler\n", stmt->identifier);
 			break;
-		case STMT_RETURN:
-			// only current use for return is to end the program
-			printVars(&vars);
-			printf(".end");
-			break;
 		case STMT_PRINTF_CALL:
 			pepPrintExpression(&stmt->rhs);
 			break;
 		case STMT_SCANF_CALL:
 			printf("\tDECI %s,d\t\t; take in decimal input from terminal, store to memory\n", stmt->identifier);
 			break;
+		case STMT_IF:
+			pepConExpression(&stmt->rhs);
+			pepBlock(&stmt->block);
+			printf("\tBRNE con%d\n", (conCount + 1));
+			printf("\ncon%d: NOP0\t", conCount);
+			pepBlock(&stmt->block);
+			printf("\ncon%d: NOP0\t", (conCount++ + 1));
+			break;
+		case STMT_RETURN:
+			// only current use for return is to end the program
+			printVars(&vars);
+			printf(".end");
+			break;
 		default:
 			error("invalid statement type");
+			break;
+	}
+}
+
+// Function: condition expression print
+void pepConExpression(struct expression * expr) {
+	switch (expr->leftType) {
+		case EXPR_VAL_NUMBER:
+			{
+				// load left hand expr into accumulator
+				int * val = (int *) expr->left;
+				printf("\tLDWA 0x%x,i\n",*val);
+			}
+			break;
+		case EXPR_VAL_STRING:
+			error("attempted to pass a string payload into regular pepExpression");
+			break;
+		case EXPR_VAL_IDENTIFIER:
+			printf("\tLDWA %s,d\n", (char *)expr->left);
+			break;
+		default:
+			error("invalid left expression in con");
+			break;
+	}
+	switch (expr->rightType) {
+		case EXPR_VAL_NUMBER:
+			{
+				int * val = (int *) expr->right;
+				printf("\tCPWA 0x%x,i\n",*val);
+			}
+			break;
+		case EXPR_VAL_IDENTIFIER:
+			printf("\tCPWA %s,d\n", (char *)expr->right);
+			break;
+		case EXPR_VAL_UNARY:
+			printf("\tCPWA 0x1,i\n");
+			break;
+		case EXPR_VAL_EXPRESSION:
+			pepExpression(expr->right);
+			break;
+		default:
+			error("invalid right expression in con");
+			break;
+	}
+	switch (expr->operator) {
+		//!! Conditional operators are opposite since branching takes place if something is true in Pep9, the opposite of standard if
+		case EXPR_OP_EQ:
+			printf("\tBRNE con%d\n", conCount);
+			break;
+		case EXPR_OP_NE:
+			printf("\tBREQ con%d\n", conCount);
+			break;
+		case EXPR_OP_GE:
+			printf("\tBRLT con%d\n", conCount);
+			break;
+		case EXPR_OP_LE:
+			printf("\tBRGT con%d\n", conCount);
+			break;
+		case EXPR_OP_GT:
+			printf("\tBRLE con%d\n", conCount);
+			break;
+		case EXPR_OP_LT:
+			printf("\tBRGE con%d\n", conCount);
 			break;
 	}
 }
