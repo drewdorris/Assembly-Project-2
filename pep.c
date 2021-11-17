@@ -124,19 +124,30 @@ void pepStatement(struct statement * stmt) {
 		case STMT_IF:
 			if (stmt->block2.nElements == 0) {
 				// if case
+				// Reserve a jump label for our use
 				int jumpAfterIf = conCount++;
+				// Print jump after the code block if false
 				pepConExpression(&stmt->rhs,jumpAfterIf);
+				// Print the code inside if
 				pepBlock(&stmt->block);
+				// Print label to jump to
 				printf("\ncon%d: NOP0\t\n", jumpAfterIf);
 			} else {
 				// if/else case
+				// Allocate two jump labels: one for else, one for after the blocks
 				int jumpToElse = conCount++;
 				int jumpAfterIf = conCount++;
+				// Print jump to else if condition is false
 				pepConExpression(&stmt->rhs,jumpToElse);
+				// Print the if block
 				pepBlock(&stmt->block);
+				// Jump after the else block so it doesn't run if condition was true
 				printf("\n\tBR con%d\n", jumpAfterIf);
+				// Print else block label
 				printf("\ncon%d: NOP0\t\n", jumpToElse);
+				// Print else block
 				pepBlock(&stmt->block2);
+				// Print label after if/else is done
 				printf("\ncon%d: NOP0\t\n", jumpAfterIf);
 			}
 			break;
@@ -163,6 +174,7 @@ void pepStatement(struct statement * stmt) {
 }
 
 // Function: condition expression print
+// Reserved jump is the label the conditional branch will jump to if condition is false
 void pepConExpression(struct expression * expr, int reservedJump) {
 	switch (expr->leftType) {
 		case EXPR_VAL_NUMBER:
