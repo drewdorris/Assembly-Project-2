@@ -18,10 +18,33 @@ int main() {
 	printf("%d",y);
 	printf("\n");
 
-	x = y + x;
 	x = x + 1;
 
-	printf("x + y + 1 = ");
+	printf("x = x + 1 = ");
+	printf("%d",x);
+	printf("\n");
+
+	x = y + x;
+
+	printf("x = x + y = ");
+	printf("%d",x);
+	printf("\n");
+
+	x = x * y;
+
+	printf("x = x * y = ");	
+	printf("%d",x);
+	printf("\n");
+
+	x = x / y;
+
+	printf("x = x / y = ");	
+	printf("%d",x);
+	printf("\n");
+
+	x = x % 7;
+
+	printf("x = x % 7 = ");	
 	printf("%d",x);
 	printf("\n");
 
@@ -32,17 +55,11 @@ int main() {
 	printf("%d",c);
 	printf("\n");
 
-	x = x * y;
-
-	printf("x * y = ");	
-	printf("%d",x);
-	printf("\n");
-
 	gVar1 = 41;
 	gVar1 = gVar2 - gVar1;
 	gVar1 = ~gVar1;
 	printf("%d",gVar1);
 
-	printf("Thats all folks\n");
+	printf("\nThats all folks\n");
 	return 0;
 }

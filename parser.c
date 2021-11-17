@@ -546,7 +546,7 @@ struct expression expression(struct parser * self) {
 				break;
 			case TYPE_MOD:
 				expr.operator = EXPR_OP_MOD;
-
+				break;
 			case TYPE_CD_EQUAL:
 				expr.operator = EXPR_OP_EQ;
 				break;
