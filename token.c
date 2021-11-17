@@ -169,6 +169,12 @@ void tokenize(char *argv, int size) {
 				break;
 			}
 
+			case '*':
+			{
+				pushTokenType(TYPE_MULT);
+				break;
+			}
+
 			// upon finding an operator, generates the appropriate token	
 			case '&':
 			{

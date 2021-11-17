@@ -22,6 +22,10 @@ int main() {
 	short c = a | b;
 	printf("%d",c);
 
+	x = x * 2;
+
+	printf("%d",x);
+
 	gVar1 = 41;
 	gVar1 = gVar2 - gVar1;
 	gVar1 = ~gVar1;

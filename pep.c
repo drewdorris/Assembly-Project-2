@@ -22,6 +22,10 @@ int depth = 0;			// represents the # of layers the code is into nested structs
 int depthMax = 0;		// represents the max depth reached before popping all the way back out
 char * tempString;		// temporary pointer for strings
 struct varList vars;	// varList holds a list of strings for varaible declaration at the bottom of the code
+short hasMultFunc = 0;	// bool; decides whether to add mult function to end or not
+const char * multString = ";********* MULTIPLY **********\nretVal:  .EQUATE 12          \nmult1:   .EQUATE 10          \nmult2:   .EQUATE 8           \nm1Sign:  .EQUATE 5           \nm2Sign:  .EQUATE 4           \nk:       .EQUATE 2           \nmresult: .EQUATE 0           \nmultiply:SUBSP   6,i         \n         LDWA    0,i         \n         STWA    result,s    \n         LDBA    0,i         \n         STBA    m1Sign,s    \n         STBA    m2Sign,s    \n         LDWA    1,i         \n         STWA    k,s         \nchckM1:  LDWA    mult1,s     \n         CPWA    0,i         \n         BRGT    chckM2      \nabs1:    NOTA                \n         ADDA    1,i         \n         STWA    mult1,s     \n         LDBA    1,i         \n         STBA    m1Sign,s    \nchckM2:  LDWA    mult2,s     \n         CPWA    0,i         \n         BRGT    forM        \nabs2:    NOTA                \n         ADDA    1,i         \n         STWA    mult2,s     \n         LDBA    1,i         \n         STBA    m2Sign,s    \nforM:    LDWA    k,s         \n         CPWA    mult2,s     \n         BRGT    endForM     \n         LDWA    result,s    \n         ADDA    mult1,s     \n         STWA    result,s    \n         LDWA    k,s         \n         ADDA    1,i         \n         STWA    k,s         \n         BR      forM        \nendForM: LDBA    m1Sign,s    \n         CPBA    m2Sign,s    \n         BREQ    endForM2    \n         LDWA    result,s    \n         NOTA                \n         ADDA    1,i         \n         STWA    result,s    \nendForM2:LDWA    result,s    \n         STWA    retVal,s    \n         LDWA    0,i         \n         STWA    k,s         \n         STWA    result,s    \n         LDBA    0,i         \n         STBA    m1Sign,s    \n         STBA    m2Sign,s    \n         ADDSP   6,i         \n         RET\n";
+
+
 
 // Function: pho-constructor function for the varList
 void varListInit(struct varList * self) {
@@ -316,6 +320,22 @@ void pepExpression(struct expression * expr) {
 			break;
 		case EXPR_OP_NOP:
 			break;
+		case EXPR_OP_MULT:
+			printf("\tSTWA -4,s\n\tLDWA"); 
+			if (!hasMultFunc) {
+				// Add 30 to the length of the string (length of string with empty expr string) for n characters and allocate memory.
+				// additionally, using malloc without free will give a new allocation to the tempString pointer without removing
+				//	the previous allocation (who's pointer is stored in the vars varList)
+				tempString = (char *)malloc(sizeof(char) * (30 + strlen(multString)));
+				// insert a formatted string into the new allocation
+				sprintf(tempString, "%s", multString);
+				// add pointer to list
+				addVar(&vars, tempString);
+				// add the whole mult part to the bottom if not added already, as well
+				// remember to add resTemp!
+				hasMultFunc = 1;
+			}
+			break;
 		default:
 		error("invalid expression operator");
 			break;
@@ -342,6 +362,14 @@ void pepExpression(struct expression * expr) {
 			break;
 		default:
 			error("invalid right expression");
+			break;
+	}
+	// handle additional pep code needed for multiplication usage
+	switch (expr->operator) {
+		case EXPR_OP_MULT:
+			printf("\tSTWA -6,s\n\tSUBSP 6,i\n\tCALL multiply\n\tLDWA 4,s\n\tSTWA resTemp,d\n\tLDWA 0,i\n\tSTWA 2,s\n\tSTWA 4,s\n\tADDSP 6,i\n\tLDWA resTemp,d\n");
+			break;
+		default:
 			break;
 	}
 	printf("\n");

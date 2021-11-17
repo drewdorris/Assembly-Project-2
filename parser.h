@@ -88,12 +88,12 @@ struct blockElement {
 #define EXPR_OP_NEG 5 // Unary operator. Right side not used. Bitwise negation.
 #define EXPR_OP_MULT 6
 // Conditional operators, using Pep/9 opcode names
-#define EXPR_OP_EQ 6 // ==
-#define EXPR_OP_NE 7 // !=
-#define EXPR_OP_LT 8 // <
-#define EXPR_OP_LE 9 // <=
-#define EXPR_OP_GT 10 // >
-#define EXPR_OP_GE 11 // >=
+#define EXPR_OP_EQ 7 // ==
+#define EXPR_OP_NE 8 // !=
+#define EXPR_OP_LT 9 // <
+#define EXPR_OP_LE 10 // <=
+#define EXPR_OP_GT 11 // >
+#define EXPR_OP_GE 12 // >=
 
 struct expression {
 	int leftType;
