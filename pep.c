@@ -18,6 +18,8 @@ Purpose: Convert a small subset of C language source code into Pep/9 assembly so
 
 int msgCount = 0;		// used to define the tag for referencing ASCII memory (msg[msgCount]: ASCII.)
 int conCount = 0;		// used to define the tag for referencing conditional jumps
+int depth = 0;			// represents the # of layers the code is into nested structs
+int depthMax = 0;		// represents the max depth reached before popping all the way back out
 char * tempString;		// temporary pointer for strings
 struct varList vars;	// varList holds a list of strings for varaible declaration at the bottom of the code
 
@@ -122,10 +124,15 @@ void pepStatement(struct statement * stmt) {
 		case STMT_IF:
 			pepConExpression(&stmt->rhs);
 			pepBlock(&stmt->block);
-			printf("\tBRNE con%d\n", (conCount + 1));
-			printf("\ncon%d: NOP0\t", conCount);
+			printf("\tBRNE con%d\n", (conCount + depth + 1));
+			printf("\ncon%d: NOP0\t", conCount + depth);
 			pepBlock(&stmt->block);
-			printf("\ncon%d: NOP0\t", (conCount++ + 1));
+			printf("\ncon%d: NOP0\t", (conCount + depth + 1));
+			pepBlock(&stmt->block2);
+			if (depth == 0) {
+				conCount = conCount + depthMax;
+				depthMax = 0;
+			}
 			break;
 		case STMT_RETURN:
 			// only current use for return is to end the program
@@ -172,7 +179,12 @@ void pepConExpression(struct expression * expr) {
 			printf("\tCPWA 0x1,i\n");
 			break;
 		case EXPR_VAL_EXPRESSION:
+			depth++;
+			depthMax++;
+			printf("\n;Depth change down a layer: depth = %d\n", depth);
 			pepExpression(expr->right);
+			printf("\n;Depth change down a layer: depth = %d\n", depth);
+			depth--;
 			break;
 		default:
 			error("invalid right expression in con");
@@ -181,23 +193,25 @@ void pepConExpression(struct expression * expr) {
 	switch (expr->operator) {
 		//!! Conditional operators are opposite since branching takes place if something is true in Pep9, the opposite of standard if
 		case EXPR_OP_EQ:
-			printf("\tBRNE con%d\n", conCount);
+			printf("\tBRNE con%d\n", conCount + depth);
 			break;
 		case EXPR_OP_NE:
-			printf("\tBREQ con%d\n", conCount);
+			printf("\tBREQ con%d\n", conCount + depth);
 			break;
 		case EXPR_OP_GE:
-			printf("\tBRLT con%d\n", conCount);
+			printf("\tBRLT con%d\n", conCount + depth);
 			break;
 		case EXPR_OP_LE:
-			printf("\tBRGT con%d\n", conCount);
+			printf("\tBRGT con%d\n", conCount + depth);
 			break;
 		case EXPR_OP_GT:
-			printf("\tBRLE con%d\n", conCount);
+			printf("\tBRLE con%d\n", conCount + depth);
 			break;
 		case EXPR_OP_LT:
-			printf("\tBRGE con%d\n", conCount);
+			printf("\tBRGE con%d\n", conCount + depth);
 			break;
+		case EXPR_OP_NOP:
+			printf("\tBRNE con%d\n", conCount + depth);
 	}
 }
 
