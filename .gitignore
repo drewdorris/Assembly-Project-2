@@ -1,5 +1,7 @@
 .vscode/
 *.exe
+*.pep
+*.txt
 *.o
 *.obj
 proj2-release
