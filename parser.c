@@ -538,6 +538,9 @@ struct expression expression(struct parser * self) {
 			case TYPE_AND:
 				expr.operator = EXPR_OP_AND;
 				break;
+			case TYPE_MULT:
+				expr.operator = EXPR_OP_MULT;
+				break;
 
 			case TYPE_CD_EQUAL:
 				expr.operator = EXPR_OP_EQ;
@@ -781,6 +784,9 @@ void printExpression(struct expression * expr) {
 			break;
 		case EXPR_OP_OR:
 			printf(" OR ");
+			break;
+		case EXPR_OP_MULT:
+			printf(" MULT ");
 			break;
 		case EXPR_OP_NOP:
 			printf(" <not used>");

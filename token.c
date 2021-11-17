@@ -391,6 +391,7 @@ char * tokenTypeString(int typeId) {
 		case TYPE_OR: return "OR";
 		case TYPE_NEG: return "NEG";
 		case TYPE_ASSIGN: return "ASSIGN";
+		case TYPE_MULT: return "MULT";
 		//Conditions
 		case TYPE_CD_EQUAL: return "CD_EQUAL";
 		case TYPE_CD_LESS: return "CD_LESS";

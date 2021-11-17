@@ -86,6 +86,7 @@ struct blockElement {
 #define EXPR_OP_AND 3
 #define EXPR_OP_OR 4
 #define EXPR_OP_NEG 5 // Unary operator. Right side not used. Bitwise negation.
+#define EXPR_OP_MULT 6
 // Conditional operators, using Pep/9 opcode names
 #define EXPR_OP_EQ 6 // ==
 #define EXPR_OP_NE 7 // !=
