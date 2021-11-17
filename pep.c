@@ -22,9 +22,12 @@ int depth = 0;			// represents the # of layers the code is into nested structs
 int depthMax = 0;		// represents the max depth reached before popping all the way back out
 char * tempString;		// temporary pointer for strings
 struct varList vars;	// varList holds a list of strings for varaible declaration at the bottom of the code
-short hasMultFunc = 0;	// bool; decides whether to add mult function to end or not
-const char * multString = ";********* MULTIPLY **********\nretVal:  .EQUATE 12          \nmult1:   .EQUATE 10          \nmult2:   .EQUATE 8           \nm1Sign:  .EQUATE 5           \nm2Sign:  .EQUATE 4           \nk:       .EQUATE 2           \nmresult: .EQUATE 0           \nmultiply:SUBSP   6,i         \n         LDWA    0,i         \n         STWA    result,s    \n         LDBA    0,i         \n         STBA    m1Sign,s    \n         STBA    m2Sign,s    \n         LDWA    1,i         \n         STWA    k,s         \nchckM1:  LDWA    mult1,s     \n         CPWA    0,i         \n         BRGT    chckM2      \nabs1:    NOTA                \n         ADDA    1,i         \n         STWA    mult1,s     \n         LDBA    1,i         \n         STBA    m1Sign,s    \nchckM2:  LDWA    mult2,s     \n         CPWA    0,i         \n         BRGT    forM        \nabs2:    NOTA                \n         ADDA    1,i         \n         STWA    mult2,s     \n         LDBA    1,i         \n         STBA    m2Sign,s    \nforM:    LDWA    k,s         \n         CPWA    mult2,s     \n         BRGT    endForM     \n         LDWA    result,s    \n         ADDA    mult1,s     \n         STWA    result,s    \n         LDWA    k,s         \n         ADDA    1,i         \n         STWA    k,s         \n         BR      forM        \nendForM: LDBA    m1Sign,s    \n         CPBA    m2Sign,s    \n         BREQ    endForM2    \n         LDWA    result,s    \n         NOTA                \n         ADDA    1,i         \n         STWA    result,s    \nendForM2:LDWA    result,s    \n         STWA    retVal,s    \n         LDWA    0,i         \n         STWA    k,s         \n         STWA    result,s    \n         LDBA    0,i         \n         STBA    m1Sign,s    \n         STBA    m2Sign,s    \n         ADDSP   6,i         \n         RET\n";
 
+short hasResultTemp = 0; // bool; used for mult/div; temp variable for storing result
+short hasMultFunc = 0;	// bool; decides whether to add mult function to end or not
+
+const char * multString = ";********* MULTIPLY **********\nretVal:  .EQUATE 12          ;returned value #2d\nmult1:   .EQUATE 10          ;formal parameter #2d\nmult2:   .EQUATE 8           ;formal parameter #2d\nm1Sign:  .EQUATE 5           ;local variable #1d\nm2Sign:  .EQUATE 4           ;local variable #1d\nk:       .EQUATE 2           ;local variable #2d\nmresult: .EQUATE 0           ;local variable; calculated result #2d\nmultiply:SUBSP   6,i         ;push #m1Sign #m2Sign #k #mresult\n         LDWA    0,i         ;reset possible lingering values in the stack before doing operations\n         STWA    mresult,s   ;reset\n         LDBA    0,i         ;reset\n         STBA    m1Sign,s    ;reset\n         STBA    m2Sign,s    ;reset\n         LDWA    1,i         ;reset\n         STWA    k,s         ;reset\nchckM1:  LDWA    mult1,s     ;check mult1 if it is negative\n         CPWA    0,i         ;compare\n         BRGT    chckM2      ;move on if not\nabs1:    NOTA                ;but if so, note that the sign is negative and negate mult1\n         ADDA    1,i         ;negate\n         STWA    mult1,s     ;negate\n         LDBA    1,i         ;note it\n         STBA    m1Sign,s    ;note it\nchckM2:  LDWA    mult2,s     ;check mult2 if it is negative\n         CPWA    0,i         ;\n         BRGT    forM        ;move on if not\nabs2:    NOTA                ;here, note that the sign is negative and negate mult2\n         ADDA    1,i         ;negate\n         STWA    mult2,s     ;negate\n         LDBA    1,i         ;note it\n         STBA    m2Sign,s    ;note it\nforM:    LDWA    k,s         ;load k for comparison if not loaded already, to see if we are done looping yet\n         CPWA    mult2,s     ;see if k <= mult2, which means we have added mult1 to itself mult2 times\n         BRGT    endForM     ;if so, we're done! branch to endForM\n         LDWA    mresult,s   ;if not, we'll keep going! load the current added result to keep adding\n         ADDA    mult1,s     ;add mult1 again\n         STWA    mresult,s   ;store it to result\n         LDWA    k,s         ;load k to add one to it\n         ADDA    1,i         ;add one to it so we can see when we reach mult2 and stop adding\n         STWA    k,s         ;store it to k\n         BR      forM        ;do the loop again!\nendForM: LDBA    m1Sign,s    ;check if the signs of each num are different\n         CPBA    m2Sign,s    ;if so, we set the result as negative\n         BREQ    endForM2    ;\n         LDWA    mresult,s   ;\n         NOTA                ;\n         ADDA    1,i         ;\n         STWA    mresult,s   ;\nendForM2:LDWA    mresult,s   ;load result and store to result variable\n         STWA    retVal,s    ;\n         LDWA    0,i         ;cleanup\n         STWA    k,s         ;reset values\n         STWA    mresult,s   ;reset\n         LDBA    0,i         ;reset\n         STBA    m1Sign,s    ;reset\n         STBA    m2Sign,s    ;reset\n         ADDSP   6,i         ;pop #mresult #k #m1Sign #m2Sign\n         RET\n";
+const char * resultTempString = "resTemp: .BLOCK 2\n";
 
 
 // Function: pho-constructor function for the varList
@@ -322,7 +325,19 @@ void pepExpression(struct expression * expr) {
 			break;
 		case EXPR_OP_MULT:
 			printf("\tSTWA -4,s\n\tLDWA"); 
+			if (!hasResultTemp) {
+				// Add 30 to the length of the string (length of string with empty expr string) for n characters and allocate memory.
+				// additionally, using malloc without free will give a new allocation to the tempString pointer without removing
+				//	the previous allocation (who's pointer is stored in the vars varList)
+				tempString = (char *)malloc(sizeof(char) * (30 + strlen(resultTempString)));
+				// insert a formatted string into the new allocation
+				sprintf(tempString, "%s", resultTempString);
+				// add pointer to list
+				addVar(&vars, tempString);
+				hasResultTemp = 1;
+			}
 			if (!hasMultFunc) {
+				// add the whole mult part to the bottom if not added already, as well
 				// Add 30 to the length of the string (length of string with empty expr string) for n characters and allocate memory.
 				// additionally, using malloc without free will give a new allocation to the tempString pointer without removing
 				//	the previous allocation (who's pointer is stored in the vars varList)
@@ -331,8 +346,6 @@ void pepExpression(struct expression * expr) {
 				sprintf(tempString, "%s", multString);
 				// add pointer to list
 				addVar(&vars, tempString);
-				// add the whole mult part to the bottom if not added already, as well
-				// remember to add resTemp!
 				hasMultFunc = 1;
 			}
 			break;
@@ -367,6 +380,7 @@ void pepExpression(struct expression * expr) {
 	// handle additional pep code needed for multiplication usage
 	switch (expr->operator) {
 		case EXPR_OP_MULT:
+			// ending of calling multiply function
 			printf("\tSTWA -6,s\n\tSUBSP 6,i\n\tCALL multiply\n\tLDWA 4,s\n\tSTWA resTemp,d\n\tLDWA 0,i\n\tSTWA 2,s\n\tSTWA 4,s\n\tADDSP 6,i\n\tLDWA resTemp,d\n");
 			break;
 		default:
