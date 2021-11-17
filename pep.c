@@ -123,15 +123,37 @@ void pepStatement(struct statement * stmt) {
 			break;
 		case STMT_IF:
 			pepConExpression(&stmt->rhs);
+
+			depth++;
+			depthMax++;
+			printf("\n;Depth change down a layer: depth = %d\n", depth);
 			pepBlock(&stmt->block);
-			printf("\tBRNE con%d\n", (conCount + depth + 1));
+			depth--;
+			printf("\n;Depth change up a layer: depth = %d\n", depth);
+
+			if (&stmt->block2.nElements == 0)
+				printf("\n\tBR con%d", (conCount + depth + 1));
+
 			printf("\ncon%d: NOP0\t", (conCount + depth));
-			pepBlock(&stmt->block);
-			printf("\ncon%d: NOP0\t", (conCount + depth + 1));
-			pepBlock(&stmt->block2);
+
+			if (&stmt->block2.nElements == 0) {
+				depth++;
+				depthMax++;
+				printf("\n;Depth change down a layer: depth = %d\n", depth);
+				pepBlock(&stmt->block2);
+				depth--;
+				printf("\n;Depth change up a layer: depth = %d\n", depth);
+
+				printf("\ncon%d: NOP0\t", (conCount + depth + 1));
+			}
+
 			if (depth == 0) {
 				conCount = conCount + depthMax;
 				depthMax = 0;
+				conCount++;
+
+				if (&stmt->block2.nElements == 0)
+					conCount++;
 			}
 			break;
 		case STMT_RETURN:
@@ -177,14 +199,6 @@ void pepConExpression(struct expression * expr) {
 			break;
 		case EXPR_VAL_UNARY:
 			printf("\tCPWA 0x1,i\n");
-			break;
-		case EXPR_VAL_EXPRESSION:
-			depth++;
-			depthMax++;
-			printf("\n;Depth change down a layer: depth = %d\n", depth);
-			pepExpression(expr->right);
-			printf("\n;Depth change down a layer: depth = %d\n", depth);
-			depth--;
 			break;
 		default:
 			error("invalid right expression in con");
