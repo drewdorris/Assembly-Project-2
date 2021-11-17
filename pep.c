@@ -365,7 +365,7 @@ void pepExpression(struct expression * expr) {
 			error("cannot have string as right hand expression value");
 			break;
 		case EXPR_VAL_IDENTIFIER:
-			printf(" %s,d", (char *)expr->right);
+			printf(" %s,d\n", (char *)expr->right);
 			break;
 		case EXPR_VAL_EXPRESSION:
 			printf("\n");
@@ -381,7 +381,7 @@ void pepExpression(struct expression * expr) {
 	switch (expr->operator) {
 		case EXPR_OP_MULT:
 			// ending of calling multiply function
-			printf("\tSTWA -6,s\n\tSUBSP 6,i\n\tCALL multiply\n\tLDWA 4,s\n\tSTWA resTemp,d\n\tLDWA 0,i\n\tSTWA 2,s\n\tSTWA 4,s\n\tADDSP 6,i\n\tLDWA resTemp,d\n");
+			printf("\tSTWA -6,s\n\tSUBSP 6,i\t;push #retVal #mult1 #mult2\n\tCALL multiply\n\tLDWA 4,s\n\tSTWA resTemp,d\n\tLDWA 0,i\n\tSTWA 2,s\n\tSTWA 4,s\n\tADDSP 6,i\t;pop #retVal #mult1 #mult2\n\tLDWA resTemp,d\n");
 			break;
 		default:
 			break;
