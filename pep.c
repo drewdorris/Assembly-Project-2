@@ -122,44 +122,39 @@ void pepStatement(struct statement * stmt) {
 			printf("\tDECI %s,d\t\t; take in decimal input from terminal, store to memory\n", stmt->identifier);
 			break;
 		case STMT_IF:
-			pepConExpression(&stmt->rhs);
-
-			depth++;
-			depthMax++;
-			printf("\n;Depth change down a layer: depth = %d\n", depth);
-			pepBlock(&stmt->block);
-			depth--;
-			printf("\n;Depth change up a layer: depth = %d\n", depth);
-
-			if (&stmt->block2.nElements == 0)
-				printf("\n\tBR con%d", (conCount + depth + 1));
-
-			printf("\ncon%d: NOP0\t", (conCount + depth));
-
-			if (&stmt->block2.nElements == 0) {
-				depth++;
-				depthMax++;
-				printf("\n;Depth change down a layer: depth = %d\n", depth);
+			if (stmt->block2.nElements == 0) {
+				// if case
+				int jumpAfterIf = conCount++;
+				pepConExpression(&stmt->rhs,jumpAfterIf);
+				pepBlock(&stmt->block);
+				printf("\ncon%d: NOP0\t\n", jumpAfterIf);
+			} else {
+				// if/else case
+				int jumpToElse = conCount++;
+				int jumpAfterIf = conCount++;
+				pepConExpression(&stmt->rhs,jumpToElse);
+				pepBlock(&stmt->block);
+				printf("\n\tBR con%d\n", jumpAfterIf);
+				printf("\ncon%d: NOP0\t\n", jumpToElse);
 				pepBlock(&stmt->block2);
-				depth--;
-				printf("\n;Depth change up a layer: depth = %d\n", depth);
-
-				printf("\ncon%d: NOP0\t", (conCount + depth + 1));
-			}
-
-			if (depth == 0) {
-				conCount = conCount + depthMax;
-				depthMax = 0;
-				conCount++;
-
-				if (&stmt->block2.nElements == 0)
-					conCount++;
+				printf("\ncon%d: NOP0\t\n", jumpAfterIf);
 			}
 			break;
 		case STMT_RETURN:
 			// only current use for return is to end the program
 			printVars(&vars);
 			printf(".end");
+			break;
+		case STMT_WHILE:
+			{
+				int jumpToCondition = conCount++;
+				int jumpAfterLoop = conCount++;
+				printf("\ncon%d: NOP0\t\n", jumpToCondition);
+				pepConExpression(&stmt->rhs,jumpAfterLoop);
+				pepBlock(&stmt->block); // loop body
+				printf("\n\tBR con%d", jumpToCondition);
+				printf("\ncon%d: NOP0\t\n", jumpAfterLoop);
+			}
 			break;
 		default:
 			error("invalid statement type");
@@ -168,7 +163,7 @@ void pepStatement(struct statement * stmt) {
 }
 
 // Function: condition expression print
-void pepConExpression(struct expression * expr) {
+void pepConExpression(struct expression * expr, int reservedJump) {
 	switch (expr->leftType) {
 		case EXPR_VAL_NUMBER:
 			{
@@ -207,25 +202,25 @@ void pepConExpression(struct expression * expr) {
 	switch (expr->operator) {
 		//!! Conditional operators are opposite since branching takes place if something is true in Pep9, the opposite of standard if
 		case EXPR_OP_EQ:
-			printf("\tBRNE con%d\n", (conCount + depth));
+			printf("\tBRNE con%d\n", reservedJump);
 			break;
 		case EXPR_OP_NE:
-			printf("\tBREQ con%d\n", (conCount + depth));
+			printf("\tBREQ con%d\n", reservedJump);
 			break;
 		case EXPR_OP_GE:
-			printf("\tBRLT con%d\n", (conCount + depth));
+			printf("\tBRLT con%d\n", reservedJump);
 			break;
 		case EXPR_OP_LE:
-			printf("\tBRGT con%d\n", (conCount + depth));
+			printf("\tBRGT con%d\n", reservedJump);
 			break;
 		case EXPR_OP_GT:
-			printf("\tBRLE con%d\n", (conCount + depth));
+			printf("\tBRLE con%d\n", reservedJump);
 			break;
 		case EXPR_OP_LT:
-			printf("\tBRGE con%d\n", (conCount + depth));
+			printf("\tBRGE con%d\n", reservedJump);
 			break;
 		case EXPR_OP_NOP:
-			printf("\tBRNE con%d\n", (conCount + depth));
+			printf("\tBRNE con%d\n", reservedJump);
 	}
 }
 
