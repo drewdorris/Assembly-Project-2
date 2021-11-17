@@ -125,7 +125,7 @@ void pepStatement(struct statement * stmt) {
 			pepConExpression(&stmt->rhs);
 			pepBlock(&stmt->block);
 			printf("\tBRNE con%d\n", (conCount + depth + 1));
-			printf("\ncon%d: NOP0\t", conCount + depth);
+			printf("\ncon%d: NOP0\t", (conCount + depth));
 			pepBlock(&stmt->block);
 			printf("\ncon%d: NOP0\t", (conCount + depth + 1));
 			pepBlock(&stmt->block2);
@@ -193,25 +193,25 @@ void pepConExpression(struct expression * expr) {
 	switch (expr->operator) {
 		//!! Conditional operators are opposite since branching takes place if something is true in Pep9, the opposite of standard if
 		case EXPR_OP_EQ:
-			printf("\tBRNE con%d\n", conCount + depth);
+			printf("\tBRNE con%d\n", (conCount + depth));
 			break;
 		case EXPR_OP_NE:
-			printf("\tBREQ con%d\n", conCount + depth);
+			printf("\tBREQ con%d\n", (conCount + depth));
 			break;
 		case EXPR_OP_GE:
-			printf("\tBRLT con%d\n", conCount + depth);
+			printf("\tBRLT con%d\n", (conCount + depth));
 			break;
 		case EXPR_OP_LE:
-			printf("\tBRGT con%d\n", conCount + depth);
+			printf("\tBRGT con%d\n", (conCount + depth));
 			break;
 		case EXPR_OP_GT:
-			printf("\tBRLE con%d\n", conCount + depth);
+			printf("\tBRLE con%d\n", (conCount + depth));
 			break;
 		case EXPR_OP_LT:
-			printf("\tBRGE con%d\n", conCount + depth);
+			printf("\tBRGE con%d\n", (conCount + depth));
 			break;
 		case EXPR_OP_NOP:
-			printf("\tBRNE con%d\n", conCount + depth);
+			printf("\tBRNE con%d\n", (conCount + depth));
 	}
 }
 
