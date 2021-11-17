@@ -541,6 +541,11 @@ struct expression expression(struct parser * self) {
 			case TYPE_MULT:
 				expr.operator = EXPR_OP_MULT;
 				break;
+			case TYPE_DIV:
+				expr.operator = EXPR_OP_DIV;
+				break;
+			case TYPE_MOD:
+				expr.operator = EXPR_OP_MOD;
 
 			case TYPE_CD_EQUAL:
 				expr.operator = EXPR_OP_EQ;
@@ -787,6 +792,12 @@ void printExpression(struct expression * expr) {
 			break;
 		case EXPR_OP_MULT:
 			printf(" MULT ");
+			break;
+		case EXPR_OP_DIV:
+			printf(" DIV ");
+			break;
+		case EXPR_OP_MOD:
+			printf(" MOD ");
 			break;
 		case EXPR_OP_NOP:
 			printf(" <not used>");
